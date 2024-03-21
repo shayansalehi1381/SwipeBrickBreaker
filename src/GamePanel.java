@@ -4,11 +4,11 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GamePanel extends JPanel implements MouseListener, ActionListener, Runnable {
+public class GamePanel extends JPanel implements  MouseMotionListener,MouseListener,ActionListener, Runnable {
     static final int GAME_WIDTH = 600;
     static final int GAME_HEIGHT = 700;
     static final Dimension Screen_Size = new Dimension(GAME_WIDTH, GAME_HEIGHT);
-
+    boolean play = false;
     Border northBorder;
     Border southBorder;
     Border rightBorder;
@@ -34,11 +34,13 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener, 
         leftBorder = new Border(0,0,10,GAME_HEIGHT);
         map = new MapGenerator(3, 7);
         ball = new Ball();
-        addMouseListener(this);
+
+        addMouseMotionListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         gameThread = new Thread(this);
         gameThread.start();
+
 
     }
 
@@ -71,34 +73,14 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener, 
     }
 
     public void move() {
-        //ball method move down here:
+
+        ball.move();
     }
 
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
 
-    }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
 
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
 
     public void checkCollision(){
 
@@ -126,6 +108,52 @@ public class GamePanel extends JPanel implements MouseListener, ActionListener, 
 
             }
         }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        System.out.println("ball touched");
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        int mouseX = e.getX();
+        int mouseY = e.getY();
+//        System.out.println(mouseX);
+//        System.out.println(mouseY);
+//        System.out.println(ball.ballPosY+" by");
+//        System.out.println(ball.ballPosX+" bx");
+        if (mouseX>= ball.ballPosX && mouseX <=ball.ballPosX+20){
+            if (mouseY >= ball.ballPosY && mouseY <= ball.ballPosY+20 ){
+                System.out.println("you are on the ball");
+            }
+        }
+
     }
 }
 
