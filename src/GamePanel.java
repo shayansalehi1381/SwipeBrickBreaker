@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GamePanel extends JPanel implements  MouseMotionListener,MouseListener,ActionListener, Runnable {
+public class GamePanel extends JPanel implements MouseMotionListener, MouseListener, ActionListener, Runnable {
     static final int GAME_WIDTH = 600;
     static final int GAME_HEIGHT = 700;
     static final Dimension Screen_Size = new Dimension(GAME_WIDTH, GAME_HEIGHT);
@@ -24,14 +24,17 @@ public class GamePanel extends JPanel implements  MouseMotionListener,MouseListe
     long endTime;
     long timeLeft;
     Ball ball;
+    private int mouseX, mouseY;
+    private boolean isDragging = false;
+    private int initialMouseX, initialMouseY;
 
 
     GamePanel() {
         setPreferredSize(Screen_Size);
-        northBorder = new Border(0,0,GAME_WIDTH,10);
-        southBorder = new Border(0,GAME_HEIGHT-46,GAME_WIDTH,10);
-        rightBorder = new Border(GAME_WIDTH-23,0,10,GAME_HEIGHT);
-        leftBorder = new Border(0,0,10,GAME_HEIGHT);
+        northBorder = new Border(0, 0, GAME_WIDTH, 10);
+        southBorder = new Border(0, GAME_HEIGHT - 46, GAME_WIDTH, 10);
+        rightBorder = new Border(GAME_WIDTH - 23, 0, 10, GAME_HEIGHT);
+        leftBorder = new Border(0, 0, 10, GAME_HEIGHT);
         map = new MapGenerator(3, 7);
         ball = new Ball();
 
@@ -78,12 +81,8 @@ public class GamePanel extends JPanel implements  MouseMotionListener,MouseListe
     }
 
 
-
-
-
-
-    public void checkCollision(){
-
+    public void checkCollision() {
+        checkCollisionForBorders(ball);
     }
 
     @Override
@@ -99,13 +98,10 @@ public class GamePanel extends JPanel implements  MouseMotionListener,MouseListe
             delta += (now - lastTime) / ns;
             lastTime = now;
             if (delta >= 1) {
-                 move();
-                 checkCollision();
-
+                checkCollision();
+                move();
                 repaint();
                 delta--;
-
-
             }
         }
     }
@@ -144,16 +140,32 @@ public class GamePanel extends JPanel implements  MouseMotionListener,MouseListe
     public void mouseMoved(MouseEvent e) {
         int mouseX = e.getX();
         int mouseY = e.getY();
-//        System.out.println(mouseX);
-//        System.out.println(mouseY);
-//        System.out.println(ball.ballPosY+" by");
-//        System.out.println(ball.ballPosX+" bx");
-        if (mouseX>= ball.ballPosX && mouseX <=ball.ballPosX+20){
-            if (mouseY >= ball.ballPosY && mouseY <= ball.ballPosY+20 ){
+
+        if (mouseX >= ball.ballPosX && mouseX <= ball.ballPosX + 20) {
+            if (mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + 20) {
                 System.out.println("you are on the ball");
             }
         }
 
     }
+
+    public void checkCollisionForBorders(Ball ball) {
+        if (ball.ballPosX + ball.width >= rightBorder.x) {
+            ball.xVelocity = -ball.xVelocity;
+        }
+        if (ball.ballPosX <= leftBorder.x + leftBorder.width) {
+            ball.xVelocity = -ball.xVelocity;
+        }
+
+        if (ball.ballPosY <= northBorder.y + northBorder.height) {
+            ball.yVelocity = -ball.yVelocity;
+        }
+
+        if (ball.ballPosY + ball.height >= southBorder.y) {
+            ball.yVelocity = 0;
+            ball.xVelocity = 0;
+        }
+    }
+
 }
 

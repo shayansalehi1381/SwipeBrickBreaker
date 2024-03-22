@@ -9,14 +9,18 @@ public class Ball extends Rectangle  {
     int ID;
     Random random;
 
-     int ballPosX = GamePanel.GAME_WIDTH/2 - 20;
-     int ballPosY = GamePanel.GAME_HEIGHT - 69;
+     int ballPosX ;
+     int ballPosY ;
      int xVelocity;
-     int yVelocity;
+     int yVelocity = -5;
      int speed = 5;
+     int width = 20;
+     int height = 20;
    static ArrayList<Ball> allBalls = new ArrayList<>();
     public Ball(){
-
+        super();
+        ballPosY = GamePanel.GAME_HEIGHT - 69;
+        ballPosX = GamePanel.GAME_WIDTH/2 - 20;
         allBalls.add(this);
         random = new Random();
         int randomXDirection = random.nextInt(2);
@@ -27,15 +31,6 @@ public class Ball extends Rectangle  {
         else {
             setXdirection(randomXDirection * speed);
         }
-        int randomYDirection = random.nextInt(2);
-        if (randomYDirection==0){
-            randomYDirection--;
-            setYdirection(randomYDirection * speed);
-        }
-        else {
-            setYdirection(randomYDirection * speed);
-        }
-
     }
 
     public void paint(Graphics g){
@@ -47,12 +42,15 @@ public class Ball extends Rectangle  {
         xVelocity=randomXDirection;
 
     }
-    public void setYdirection(int randomYDirection){
-        yVelocity=randomYDirection;
-    }
+
     public void move(){
-        x+=xVelocity;
-        y+=yVelocity;
+        ballPosX+=xVelocity;
+        ballPosY+=yVelocity;
+
+    }
+
+    public String toString(){
+        return "x: "+ ballPosX +" "+"y:"+ballPosY+" "+"width:"+width+" "+"height: "+height;
     }
 
 
