@@ -27,6 +27,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     private int mouseX, mouseY;
     private boolean isDragging = false;
     private int initialMouseX, initialMouseY;
+    boolean ballGrounded = false;
 
 
     GamePanel() {
@@ -37,7 +38,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         leftBorder = new Border(0, 0, 10, GAME_HEIGHT);
         map = new MapGenerator(3, 7);
         ball = new Ball();
-
+        addMouseListener(this);
         addMouseMotionListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
@@ -113,17 +114,47 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (ballGrounded == true){
+            mouseX = e.getX();
+            mouseY = e.getY();
 
+            // Check if the mouse is pressed within the ball area
+            if (mouseX >= ball.ballPosX && mouseX <= ball.ballPosX + ball.width &&
+                    mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + ball.height) {
+                isDragging = true;
+                initialMouseX = mouseX;
+                initialMouseY = mouseY;
+                System.out.println("you pressed the ball");
+            }
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        if (ballGrounded == true){
+            if (isDragging) {
+                mouseX = e.getX();
+                mouseY = e.getY();
 
+                // Calculate velocity based on the difference between initial press and release positions
+                int releaseVelocityX = -((mouseX - initialMouseX) / 10); // Adjust the division factor as needed
+                int releaseVelocityY = -((mouseY - initialMouseY) / 10);
+
+                // Set the ball's velocity to the calculated velocity
+                ball.xVelocity = releaseVelocityX;
+                ball.yVelocity = releaseVelocityY;
+
+                isDragging = false;
+                System.out.println(releaseVelocityX);
+                System.out.println(releaseVelocityY);
+                System.out.println("ball released");
+            }
+        }
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        System.out.println("ball touched");
+
     }
 
     @Override
@@ -143,7 +174,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
         if (mouseX >= ball.ballPosX && mouseX <= ball.ballPosX + 20) {
             if (mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + 20) {
-                System.out.println("you are on the ball");
+
             }
         }
 
@@ -164,6 +195,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         if (ball.ballPosY + ball.height >= southBorder.y) {
             ball.yVelocity = 0;
             ball.xVelocity = 0;
+            ballGrounded = true;
         }
     }
 
