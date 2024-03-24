@@ -27,7 +27,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     private int mouseX, mouseY;
     private boolean isDragging = false;
     private int initialMouseX, initialMouseY;
-    boolean ballGrounded = false;
+    boolean ballGrounded = true;
+    static boolean playIsON = false;
 
 
     GamePanel() {
@@ -125,6 +126,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 initialMouseX = mouseX;
                 initialMouseY = mouseY;
                 System.out.println("you pressed the ball");
+                System.out.println("ready to start the game");
+                System.out.println("isPlay: "+ playIsON);
             }
         }
     }
@@ -132,6 +135,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     @Override
     public void mouseReleased(MouseEvent e) {
         if (ballGrounded == true){
+            playIsON = true;
             if (isDragging) {
                 mouseX = e.getX();
                 mouseY = e.getY();
@@ -143,11 +147,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 // Set the ball's velocity to the calculated velocity
                 ball.xVelocity = releaseVelocityX;
                 ball.yVelocity = releaseVelocityY;
-
+                ball.move();
                 isDragging = false;
                 System.out.println(releaseVelocityX);
                 System.out.println(releaseVelocityY);
                 System.out.println("ball released");
+                System.out.println("game started ");
+                System.out.println("isPlay: "+playIsON);
             }
         }
     }
@@ -193,11 +199,18 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         }
 
         if (ball.ballPosY + ball.height >= southBorder.y) {
+             ball.ballPosY = southBorder.y - ball.height;
             ball.yVelocity = 0;
             ball.xVelocity = 0;
+
             ballGrounded = true;
+            playIsON = false;
+            System.out.println("isPlaying: "+ playIsON);
         }
     }
+
+
+
 
 }
 

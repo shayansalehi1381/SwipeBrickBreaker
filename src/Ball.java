@@ -12,25 +12,32 @@ public class Ball extends Rectangle  {
      int ballPosX ;
      int ballPosY ;
      int xVelocity;
-     int yVelocity = -5;
+     int yVelocity ;
      int speed = 5;
      int width = 20;
      int height = 20;
    static ArrayList<Ball> allBalls = new ArrayList<>();
     public Ball(){
         super();
+
         ballPosY = GamePanel.GAME_HEIGHT - 69;
         ballPosX = GamePanel.GAME_WIDTH/2 - 20;
         allBalls.add(this);
         random = new Random();
         int randomXDirection = random.nextInt(2);
-        if (randomXDirection==0){
-            randomXDirection--;
-            setXdirection(randomXDirection * speed);
+        if (GamePanel.playIsON == true){
+            yVelocity = -5;
+            if (randomXDirection==0){
+                randomXDirection--;
+                setXdirection(randomXDirection * speed);
+            }
+            else {
+                setXdirection(randomXDirection * speed);
+            }
         }
-        else {
-            setXdirection(randomXDirection * speed);
-        }
+        else xVelocity = 0;
+        yVelocity = 0;
+
     }
 
     public void paint(Graphics g){

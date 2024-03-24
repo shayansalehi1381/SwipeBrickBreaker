@@ -22,11 +22,11 @@ public class MapGenerator {
                 if (map[i][j] > 0){
 
                     g.setColor(Color.red);
-                    g.fillRect(j*brickWidth +25,i*brickHeight + 50,brickWidth,brickHeight);
+                    g.fillRect(j*brickWidth + 55,i*brickHeight + 50,brickWidth,brickHeight);
 
                     g.setStroke(new BasicStroke(3));
                     g.setColor(Color.white);
-                    g.drawRect(j*brickWidth +25 ,i*brickHeight + 50,brickWidth,brickHeight);
+                    g.drawRect(j*brickWidth + 55 ,i*brickHeight + 50,brickWidth,brickHeight);
 
                 }
             }
