@@ -11,11 +11,15 @@ public class Ball extends Rectangle  {
 
      int ballPosX ;
      int ballPosY ;
+
      int xVelocity;
      int yVelocity ;
      int speed = 5;
      int width = 20;
      int height = 20;
+
+    int savedYvelocity ;
+    int savedXvelocity ;
    static ArrayList<Ball> allBalls = new ArrayList<>();
     public Ball(){
         super();
@@ -24,19 +28,6 @@ public class Ball extends Rectangle  {
         ballPosX = GamePanel.GAME_WIDTH/2 - 20;
         allBalls.add(this);
         random = new Random();
-        int randomXDirection = random.nextInt(2);
-        if (GamePanel.playIsON == true){
-            yVelocity = -5;
-            if (randomXDirection==0){
-                randomXDirection--;
-                setXdirection(randomXDirection * speed);
-            }
-            else {
-                setXdirection(randomXDirection * speed);
-            }
-        }
-        else xVelocity = 0;
-        yVelocity = 0;
 
     }
 
@@ -55,6 +46,13 @@ public class Ball extends Rectangle  {
         ballPosY+=yVelocity;
 
     }
+    public boolean intersects(Side side) {
+        Rectangle ballRect = new Rectangle(ballPosX, ballPosY, width, height);
+        Rectangle sideRect = new Rectangle(side.x, side.y, side.width, side.height);
+        return ballRect.intersects(sideRect);
+    }
+
+
 
     public String toString(){
         return "x: "+ ballPosX +" "+"y:"+ballPosY+" "+"width:"+width+" "+"height: "+height;

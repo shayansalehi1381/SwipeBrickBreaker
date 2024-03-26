@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements MouseMotionListener, MouseListener, ActionListener, Runnable {
+    static int row = 20;
+    static int col = 10;
     static final int GAME_WIDTH = 600;
     static final int GAME_HEIGHT = 700;
     static final Dimension Screen_Size = new Dimension(GAME_WIDTH, GAME_HEIGHT);
@@ -19,7 +21,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     int randomSignedNumber = randomInt.nextBoolean() ? randomNumber : -randomNumber;
     private int ballXdir = randomSignedNumber;
     private int ballYdir = randomSignedNumber;
-    private MapGenerator map;
     long lastTime;
     long endTime;
     long timeLeft;
@@ -29,6 +30,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     private int initialMouseX, initialMouseY;
     boolean ballGrounded = true;
     static boolean playIsON = false;
+    static int level = 1;
+    Brick brick;
+
 
 
     GamePanel() {
@@ -37,8 +41,11 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         southBorder = new Border(0, GAME_HEIGHT - 46, GAME_WIDTH, 10);
         rightBorder = new Border(GAME_WIDTH - 23, 0, 10, GAME_HEIGHT);
         leftBorder = new Border(0, 0, 10, GAME_HEIGHT);
-        map = new MapGenerator(3, 7);
         ball = new Ball();
+        brick = new Brick();
+        for (Brick brick1:Brick.allBricks){
+            brick1.toString();
+        }
         addMouseListener(this);
         addMouseMotionListener(this);
         setFocusable(true);
@@ -55,6 +62,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         g.setColor(Color.white);
         g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
+        //brick
+        brick.paint((Graphics2D) g);
+
 
         //border
         northBorder.paint(g);
@@ -62,11 +72,12 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         rightBorder.paint(g);
         leftBorder.paint(g);
 
-        //map
-        map.draw((Graphics2D) g);
+
 
         //ball
         ball.paint(g);
+
+
 
         g.dispose();
 
@@ -85,6 +96,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     public void checkCollision() {
         checkCollisionForBorders(ball);
+        checkCollisionForBricks(ball);
     }
 
     @Override
@@ -100,8 +112,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             delta += (now - lastTime) / ns;
             lastTime = now;
             if (delta >= 1) {
-                checkCollision();
                 move();
+                checkCollision();
+
                 repaint();
                 delta--;
             }
@@ -115,7 +128,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (ballGrounded == true){
+        if (playIsON == false){
             mouseX = e.getX();
             mouseY = e.getY();
 
@@ -134,7 +147,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (ballGrounded == true){
+        if (playIsON == false){
             playIsON = true;
             if (isDragging) {
                 mouseX = e.getX();
@@ -147,6 +160,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 // Set the ball's velocity to the calculated velocity
                 ball.xVelocity = releaseVelocityX;
                 ball.yVelocity = releaseVelocityY;
+                ball.savedXvelocity = ball.xVelocity;
+                ball.savedYvelocity = ball.yVelocity;
                 ball.move();
                 isDragging = false;
                 System.out.println(releaseVelocityX);
@@ -175,14 +190,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        int mouseX = e.getX();
-        int mouseY = e.getY();
-
-        if (mouseX >= ball.ballPosX && mouseX <= ball.ballPosX + 20) {
-            if (mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + 20) {
-
-            }
-        }
 
     }
 
@@ -205,9 +212,20 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
             ballGrounded = true;
             playIsON = false;
-            System.out.println("isPlaying: "+ playIsON);
         }
     }
+
+
+    public void checkCollisionForBricks(Ball ball) {
+        if (ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide)){
+            ball.xVelocity = -ball.xVelocity;
+        }
+        if (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide)){
+            ball.yVelocity = -ball.yVelocity;
+        }
+    }
+
+
 
 
 

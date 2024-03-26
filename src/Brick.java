@@ -1,6 +1,74 @@
-public class Brick {
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Timer;
 
-    int width;
-    int height;
+public class Brick extends Rectangle{
+    static ArrayList<Brick> allBricks = new ArrayList<>();
+    Random random;
+    Side topSide;
+    Side bottomSide;
+    Side leftSide;
+    Side rightSide;
+   // public Brick [][] bricks = new Brick[GamePanel.row][GamePanel.col];
+    int width =58;
+    int height = 34;
+    int rowNum = 0;
+    int colNum = 0;
+    int brickXpos;
+    int brickYpos;
 
+    int speed;
+    int value ;
+    boolean LeftOrRightcllision = false;
+    boolean TopOrBottomcllision = false;
+
+    public Brick(){
+        value++;
+        random = new Random();
+        rowNum = random.nextInt(4);
+        colNum = random.nextInt(9);
+        System.out.println("row: "+rowNum+" col: "+colNum);
+        brickXpos = colNum*width;
+        brickYpos = rowNum*height;
+        allBricks.add(this);
+        topSide = new Side(brickXpos, brickYpos-3, width+3, 1);
+        bottomSide = new Side(brickXpos, brickYpos+3 + height , width+3, 1);
+        leftSide = new Side(brickXpos-3, brickYpos, 1, height+3);
+        rightSide = new Side(brickXpos + width+3, brickYpos, 1, height+3);
+    }
+
+    public void paint(Graphics2D g){
+        if (value > 0){
+            g.setColor(Color.red);
+            g.fillRect(brickXpos,brickYpos,width,height);
+            g.setStroke(new BasicStroke(3));
+            g.setColor(Color.white);
+            g.drawRect(brickXpos ,brickYpos,width,height);
+            g.setColor(Color.white);
+            g.setFont(new Font("Consolas",Font.BOLD,15));
+            g.drawString(String.valueOf(value),colNum*width + 26,rowNum*height + 21);
+
+
+            topSide.paint(g);
+            bottomSide.paint(g);
+            leftSide.paint(g);
+            rightSide.paint(g);
+        }
+    }
+
+
+    public void bricksSlowMove(){
+
+    }
+
+    public void bricksSuddenMove(){
+
+    }
+
+
+
+    public String toString(){
+        return "x:"+brickXpos+" "+"y:"+brickYpos;
+    }
 }
