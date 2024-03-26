@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements MouseMotionListener, MouseListener, ActionListener, Runnable {
@@ -30,8 +31,11 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     private int initialMouseX, initialMouseY;
     boolean ballGrounded = true;
     static boolean playIsON = false;
-    static int level = 1;
-    Brick brick;
+    static int level = 4;
+   // Brick brick;
+    boolean GameOver = false;
+    MapGenerator map ;
+
 
     private int aimStartX, aimStartY; // Starting point of aiming line
     private int aimEndX, aimEndY;     // Ending point of aiming line
@@ -47,17 +51,15 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         rightBorder = new Border(GAME_WIDTH - 23, 0, 10, GAME_HEIGHT);
         leftBorder = new Border(0, 0, 10, GAME_HEIGHT);
         ball = new Ball();
-        brick = new Brick();
-        for (Brick brick1:Brick.allBricks){
-            brick1.toString();
-        }
+
         addMouseListener(this);
         addMouseMotionListener(this);
+
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
         gameThread = new Thread(this);
         gameThread.start();
-
+        map = new MapGenerator();
 
     }
 
@@ -117,9 +119,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 isDragging = true;
                 initialMouseX = mouseX;
                 initialMouseY = mouseY;
-                System.out.println("you pressed the ball");
+           /*     System.out.println("you pressed the ball");
                 System.out.println("ready to start the game");
-                System.out.println("isPlay: "+ playIsON);
+                System.out.println("isPlay: "+ playIsON);*/
             }
 
         }
@@ -145,11 +147,11 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 ball.savedYvelocity = ball.yVelocity;
                 ball.move();
                 isDragging = false;
-                System.out.println(releaseVelocityX);
+           /*     System.out.println(releaseVelocityX);
                 System.out.println(releaseVelocityY);
                 System.out.println("ball released");
                 System.out.println("game started ");
-                System.out.println("isPlay: "+playIsON);
+                System.out.println("isPlay: "+playIsON);*/
 
                 // Repaint the panel to remove the aiming line
                 repaint();
@@ -206,24 +208,23 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
     public void checkCollisionForBricks(Ball ball) {
-        for (Brick brick:Brick.allBricks){
-
+        Iterator<Brick> iterator = Brick.allBricks.iterator();
+        while (iterator.hasNext()) {
+            Brick brick = iterator.next();
             if ((ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide))){
                 ball.xVelocity = -ball.xVelocity;
+                brick.value--;
+
             }
             if (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide)){
                 ball.yVelocity = -ball.yVelocity;
+                brick.value--;
+
             }
+            if (brick.value <= 0){
+                iterator.remove();
 
-        /*    if ((ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide)) && !(ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide))){
-                ball.xVelocity = -ball.xVelocity;
             }
-
-            if (!(ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide)) && (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide))){
-                ball.yVelocity = -ball.yVelocity;
-            }*/
-
-
         }
     }
 
@@ -233,8 +234,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         g.setColor(Color.white);
         g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-        //brick
-        brick.paint((Graphics2D) g);
+        //bricks
+        map.paint((Graphics2D) g);
 
 
         //border

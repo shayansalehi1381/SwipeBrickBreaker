@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Ball extends Rectangle  {
-    int ID;
+    int ID = 0;
+    static int nextID = 1;
+    static ArrayList<Ball> balls = new ArrayList<>();
     Random random;
 
      int ballPosX ;
@@ -28,6 +30,8 @@ public class Ball extends Rectangle  {
         ballPosX = GamePanel.GAME_WIDTH/2 - 20;
         allBalls.add(this);
         random = new Random();
+        balls.add(this);
+        ID = nextID++;
 
     }
 
@@ -55,7 +59,7 @@ public class Ball extends Rectangle  {
 
 
     public String toString(){
-        return "x: "+ ballPosX +" "+"y:"+ballPosY+" "+"width:"+width+" "+"height: "+height;
+        return "x: "+ ballPosX +" "+"y:"+ballPosY+" "+"width:"+width+" "+"height: "+height +" ID:"+ID;
     }
 
 

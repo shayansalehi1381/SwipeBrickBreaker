@@ -12,7 +12,7 @@ public class Brick extends Rectangle{
     Side rightSide;
    // public Brick [][] bricks = new Brick[GamePanel.row][GamePanel.col];
     int width =58;
-    int height = 34;
+    int height =34;
     int rowNum = 0;
     int colNum = 0;
     int brickXpos;
@@ -20,15 +20,14 @@ public class Brick extends Rectangle{
 
     int speed;
     int value ;
-    boolean LeftOrRightcllision = false;
-    boolean TopOrBottomcllision = false;
+    int ID = 0;
 
-    public Brick(){
-        value++;
-        random = new Random();
-        rowNum = random.nextInt(4);
-        colNum = random.nextInt(9);
-        System.out.println("row: "+rowNum+" col: "+colNum);
+    static int nextID = 1;
+
+    public Brick(int randomRow,int randomCol){
+        value = GamePanel.level;
+        rowNum = randomRow;
+        colNum = randomCol;
         brickXpos = colNum*width;
         brickYpos = rowNum*height;
         allBricks.add(this);
@@ -36,6 +35,8 @@ public class Brick extends Rectangle{
         bottomSide = new Side(brickXpos, brickYpos+3 + height , width+3, 1);
         leftSide = new Side(brickXpos-3, brickYpos, 1, height+3);
         rightSide = new Side(brickXpos + width+3, brickYpos, 1, height+3);
+        ID = nextID++;
+        System.out.println(this);
     }
 
     public void paint(Graphics2D g){
@@ -69,6 +70,6 @@ public class Brick extends Rectangle{
 
 
     public String toString(){
-        return "x:"+brickXpos+" "+"y:"+brickYpos;
+        return "row:"+rowNum+" "+"col:"+colNum +" "+"ID:"+ID;
     }
 }
