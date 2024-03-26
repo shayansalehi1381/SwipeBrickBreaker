@@ -156,6 +156,28 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 // Calculate velocity based on the difference between initial press and release positions
                 int releaseVelocityX = -((mouseX - initialMouseX) / 10); // Adjust the division factor as needed
                 int releaseVelocityY = -((mouseY - initialMouseY) / 10);
+                int savedVXSign = releaseVelocityX/Math.abs(releaseVelocityX);
+                if (savedVXSign != 0){
+                    if (Math.abs(releaseVelocityX) <= 10){
+                        if (savedVXSign == 1){
+                            releaseVelocityX = 10;
+                        }
+                        else releaseVelocityX = -10;
+                    }
+
+                    if (Math.abs(releaseVelocityX) >= 30){
+                        if (savedVXSign == 1){
+                            releaseVelocityX = 30;
+                        }
+                        else releaseVelocityX = -30;
+                    }
+                    if (releaseVelocityY <= -20){
+                        releaseVelocityY = -20;
+                    }
+                }
+
+
+
 
                 // Set the ball's velocity to the calculated velocity
                 ball.xVelocity = releaseVelocityX;
@@ -217,11 +239,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
     public void checkCollisionForBricks(Ball ball) {
-        if (ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide)){
-            ball.xVelocity = -ball.xVelocity;
-        }
-        if (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide)){
-            ball.yVelocity = -ball.yVelocity;
+        for (Brick brick:Brick.allBricks){
+            if (ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide)){
+                ball.xVelocity = -ball.xVelocity;
+            }
+            if (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide)){
+                ball.yVelocity = -ball.yVelocity;
+            }
         }
     }
 
