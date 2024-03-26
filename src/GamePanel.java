@@ -33,6 +33,11 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     static int level = 1;
     Brick brick;
 
+    private int aimStartX, aimStartY; // Starting point of aiming line
+    private int aimEndX, aimEndY;     // Ending point of aiming line
+    private boolean isAiming = false; // Flag to indicate if aiming is in progress
+
+
 
 
     GamePanel() {
@@ -53,33 +58,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         gameThread = new Thread(this);
         gameThread.start();
 
-
-    }
-
-
-    public void paint(Graphics g) {
-        //backGround
-        g.setColor(Color.white);
-        g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-        //brick
-        brick.paint((Graphics2D) g);
-
-
-        //border
-        northBorder.paint(g);
-        southBorder.paint(g);
-        rightBorder.paint(g);
-        leftBorder.paint(g);
-
-
-
-        //ball
-        ball.paint(g);
-
-
-
-        g.dispose();
 
     }
 
@@ -128,6 +106,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mousePressed(MouseEvent e) {
+
         if (playIsON == false){
             mouseX = e.getX();
             mouseY = e.getY();
@@ -142,11 +121,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 System.out.println("ready to start the game");
                 System.out.println("isPlay: "+ playIsON);
             }
+
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+
         if (playIsON == false){
             playIsON = true;
             if (isDragging) {
@@ -154,30 +135,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 mouseY = e.getY();
 
                 // Calculate velocity based on the difference between initial press and release positions
-                int releaseVelocityX = -((mouseX - initialMouseX) / 10); // Adjust the division factor as needed
-                int releaseVelocityY = -((mouseY - initialMouseY) / 10);
-                int savedVXSign = releaseVelocityX/Math.abs(releaseVelocityX);
-                if (savedVXSign != 0){
-                    if (Math.abs(releaseVelocityX) <= 10){
-                        if (savedVXSign == 1){
-                            releaseVelocityX = 10;
-                        }
-                        else releaseVelocityX = -10;
-                    }
-
-                    if (Math.abs(releaseVelocityX) >= 30){
-                        if (savedVXSign == 1){
-                            releaseVelocityX = 30;
-                        }
-                        else releaseVelocityX = -30;
-                    }
-                    if (releaseVelocityY <= -20){
-                        releaseVelocityY = -20;
-                    }
-                }
-
-
-
+                int releaseVelocityX = ((mouseX - initialMouseX) / 35); // Adjust the division factor as needed
+                int releaseVelocityY = ((mouseY - initialMouseY) / 35);
 
                 // Set the ball's velocity to the calculated velocity
                 ball.xVelocity = releaseVelocityX;
@@ -191,7 +150,11 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 System.out.println("ball released");
                 System.out.println("game started ");
                 System.out.println("isPlay: "+playIsON);
+
+                // Repaint the panel to remove the aiming line
+                repaint();
             }
+
         }
     }
 
@@ -207,7 +170,11 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mouseDragged(MouseEvent e) {
-
+        // Update current mouse position
+        mouseX = e.getX();
+        mouseY = e.getY();
+        // Repaint the panel to update the aiming line
+        repaint();
     }
 
     @Override
@@ -240,13 +207,59 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     public void checkCollisionForBricks(Ball ball) {
         for (Brick brick:Brick.allBricks){
-            if (ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide)){
+
+            if ((ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide))){
                 ball.xVelocity = -ball.xVelocity;
             }
             if (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide)){
                 ball.yVelocity = -ball.yVelocity;
             }
+
+        /*    if ((ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide)) && !(ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide))){
+                ball.xVelocity = -ball.xVelocity;
+            }
+
+            if (!(ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide)) && (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide))){
+                ball.yVelocity = -ball.yVelocity;
+            }*/
+
+
         }
+    }
+
+
+    public void paint(Graphics g) {
+        //backGround
+        g.setColor(Color.white);
+        g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        //brick
+        brick.paint((Graphics2D) g);
+
+
+        //border
+        northBorder.paint(g);
+        southBorder.paint(g);
+        rightBorder.paint(g);
+        leftBorder.paint(g);
+
+
+
+        //ball
+        ball.paint(g);
+
+        // Draw aiming line if the mouse is being dragged
+        if (isDragging) {
+            g.setColor(Color.green); // Change color as needed
+
+            // Draw dashed line
+            Graphics2D g2d = (Graphics2D) g;
+            Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
+            g2d.setStroke(dashed);
+            g2d.drawLine(initialMouseX, initialMouseY, mouseX, mouseY);
+        }
+
+        g.dispose();
     }
 
 
