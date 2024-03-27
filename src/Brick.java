@@ -16,9 +16,9 @@ public class Brick extends Rectangle{
     int rowNum = 0;
     int colNum = 0;
     int brickXpos;
-    int brickYpos;
+    double brickYpos;
 
-    int speed;
+    int speed = 1;
     int value ;
     int ID = 0;
 
@@ -36,19 +36,19 @@ public class Brick extends Rectangle{
         leftSide = new Side(brickXpos-3, brickYpos, 1, height+3);
         rightSide = new Side(brickXpos + width+3, brickYpos, 1, height+3);
         ID = nextID++;
-        System.out.println(this);
+
     }
 
     public void paint(Graphics2D g){
         if (value > 0){
             g.setColor(Color.red);
-            g.fillRect(brickXpos,brickYpos,width,height);
+            g.fillRect(brickXpos, (int) brickYpos,width,height);
             g.setStroke(new BasicStroke(3));
             g.setColor(Color.white);
-            g.drawRect(brickXpos ,brickYpos,width,height);
+            g.drawRect(brickXpos , (int) brickYpos,width,height);
             g.setColor(Color.white);
             g.setFont(new Font("Consolas",Font.BOLD,15));
-            g.drawString(String.valueOf(value),colNum*width + 26,rowNum*height + 21);
+            g.drawString(String.valueOf(value),brickXpos + 26, (int) (brickYpos + 21));
 
 
             topSide.paint(g);
@@ -59,13 +59,17 @@ public class Brick extends Rectangle{
     }
 
 
-    public void bricksSlowMove(){
-
+    public void brickSlowMove(){
+        if (GamePanel.playIsON == false) {
+            leftSide.y += speed;
+            rightSide.y += speed;
+            topSide.y += speed;
+           bottomSide.y += speed;
+            brickYpos += speed;
+        }
     }
 
-    public void bricksSuddenMove(){
 
-    }
 
 
 

@@ -19,7 +19,7 @@ public class MapGenerator {
             int randomBrickCol = random.nextInt(9);
             brickHashSet.add(new Brick(randomBrickRow,randomBrickCol));
             number++;
-            if (number > 5){
+            if (number > 2){
                 number = 0;
                 break;
             }

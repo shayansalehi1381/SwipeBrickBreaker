@@ -31,10 +31,15 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     private int initialMouseX, initialMouseY;
     boolean ballGrounded = true;
     static boolean playIsON = false;
-    static int level = 4;
+    static int level = 1;
    // Brick brick;
     boolean GameOver = false;
+    boolean ballFirstTouch = false;
+    int ballFirstCollisionToGround = 0;
+    private boolean levelIncremented = false;
     MapGenerator map ;
+    long startTime;
+    long elapsedTime;
 
 
     private int aimStartX, aimStartY; // Starting point of aiming line
@@ -69,20 +74,25 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
     public void move() {
-
+        for (Brick brick:Brick.allBricks){
+            brick.brickSlowMove();
+        }
+        bricksSuddenMove();
         ball.move();
     }
 
 
     public void checkCollision() {
+
         checkCollisionForBorders(ball);
         checkCollisionForBricks(ball);
     }
 
     @Override
     public void run() {
+        startTime = System.currentTimeMillis();
         lastTime = System.nanoTime();
-        endTime = System.currentTimeMillis() + 120000;
+        endTime = System.currentTimeMillis();
         double FPS = 60.0;
         double ns = 1000000000 / FPS;
         double delta = 0;
@@ -92,11 +102,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             delta += (now - lastTime) / ns;
             lastTime = now;
             if (delta >= 1) {
+
                 move();
                 checkCollision();
-
+                GameOver();
                 repaint();
                 delta--;
+                elapsedTime = System.currentTimeMillis() - startTime;
             }
         }
     }
@@ -109,14 +121,16 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     @Override
     public void mousePressed(MouseEvent e) {
 
-        if (playIsON == false){
+
             mouseX = e.getX();
             mouseY = e.getY();
 
             // Check if the mouse is pressed within the ball area
             if (mouseX >= ball.ballPosX && mouseX <= ball.ballPosX + ball.width &&
                     mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + ball.height) {
+                playIsON = false;
                 isDragging = true;
+                ballFirstTouch = true;
                 initialMouseX = mouseX;
                 initialMouseY = mouseY;
            /*     System.out.println("you pressed the ball");
@@ -124,39 +138,38 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 System.out.println("isPlay: "+ playIsON);*/
             }
 
-        }
+
+
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
 
         if (playIsON == false){
-            playIsON = true;
-            if (isDragging) {
-                mouseX = e.getX();
-                mouseY = e.getY();
+            if (ballFirstTouch == true){
+                playIsON = true;
+                if (isDragging) {
+                    mouseX = e.getX();
+                    mouseY = e.getY();
 
-                // Calculate velocity based on the difference between initial press and release positions
-                int releaseVelocityX = ((mouseX - initialMouseX) / 35); // Adjust the division factor as needed
-                int releaseVelocityY = ((mouseY - initialMouseY) / 35);
+                    // Calculate velocity based on the difference between initial press and release positions
+                    int releaseVelocityX = ((mouseX - initialMouseX) / 45); // Adjust the division factor as needed
+                    int releaseVelocityY = ((mouseY - initialMouseY) / 35);
 
-                // Set the ball's velocity to the calculated velocity
-                ball.xVelocity = releaseVelocityX;
-                ball.yVelocity = releaseVelocityY;
-                ball.savedXvelocity = ball.xVelocity;
-                ball.savedYvelocity = ball.yVelocity;
-                ball.move();
-                isDragging = false;
-           /*     System.out.println(releaseVelocityX);
-                System.out.println(releaseVelocityY);
-                System.out.println("ball released");
-                System.out.println("game started ");
-                System.out.println("isPlay: "+playIsON);*/
+                    // Set the ball's velocity to the calculated velocity
+                    ball.xVelocity = releaseVelocityX;
+                    ball.yVelocity = releaseVelocityY;
+                    ball.savedXvelocity = ball.xVelocity;
+                    ball.savedYvelocity = ball.yVelocity;
+                    ball.move();
+                    ballGrounded = false;
+                    levelIncremented = false;
+                    isDragging = false;
 
-                // Repaint the panel to remove the aiming line
-                repaint();
+                    // Repaint the panel to remove the aiming line
+                    repaint();
+                }
             }
-
         }
     }
 
@@ -200,8 +213,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
              ball.ballPosY = southBorder.y - ball.height;
             ball.yVelocity = 0;
             ball.xVelocity = 0;
-
+            ballFirstCollisionToGround ++;
             ballGrounded = true;
+            levelIncremented = true;
             playIsON = false;
         }
     }
@@ -226,6 +240,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
             }
         }
+        checkLevel();
     }
 
 
@@ -233,6 +248,18 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         //backGround
         g.setColor(Color.white);
         g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        //time Passed
+        String timeString = "Time Passed: " + formatTime(elapsedTime);
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.drawString(timeString, 350, 30);
+
+        // draw Game Level
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial",Font.BOLD,20));
+        g.drawString("Level: "+GamePanel.level,50,30);
+
 
         //bricks
         map.paint((Graphics2D) g);
@@ -260,13 +287,47 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             g2d.drawLine(initialMouseX, initialMouseY, mouseX, mouseY);
         }
 
+
+
         g.dispose();
     }
 
 
 
+    public void checkLevel(){
+        if (Brick.allBricks.size() <= 0){
+         if (ballGrounded){
+             GamePanel.level += 1;
+             map = new MapGenerator();
+         }
+        }
+    }
 
 
+
+
+    public void bricksSuddenMove() {
+
+    }
+
+    public void GameOver(){
+        for (Brick brick:Brick.allBricks){
+            if (brick.brickYpos + brick.height >= southBorder.y){
+                System.out.println("game over");
+            }
+        }
+    }
+
+
+    public String formatTime(long milliseconds) {
+        // Convert milliseconds to seconds and minutes
+        long totalSeconds = milliseconds / 1000;
+        long minutes = totalSeconds / 60;
+        long seconds = totalSeconds % 60;
+
+        // Format the time string
+        return String.format("%02d:%02d", minutes, seconds);
+    }
 
 }
 

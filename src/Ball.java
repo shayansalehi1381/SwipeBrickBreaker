@@ -39,12 +39,6 @@ public class Ball extends Rectangle  {
         g.setColor(Color.green);
         g.fillOval(ballPosX,ballPosY,20,20);
     }
-
-    public void setXdirection(int randomXDirection){
-        xVelocity=randomXDirection;
-
-    }
-
     public void move(){
         ballPosX+=xVelocity;
         ballPosY+=yVelocity;
