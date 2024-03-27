@@ -6,6 +6,7 @@ public class MapGenerator {
     HashSet<Brick> brickHashSet = new HashSet<>();
     Random random;
     int number = 0;
+    int limit = 0;
     public MapGenerator(){
         random = new Random();
 
@@ -15,11 +16,17 @@ public class MapGenerator {
     public void makeRandomBricks(){
 
         while (true){
-            int randomBrickRow = random.nextInt(9);
-            int randomBrickCol = random.nextInt(9);
+            int randomBrickRow = random.nextInt(6);
+            int randomBrickCol = random.nextInt(4);
             brickHashSet.add(new Brick(randomBrickRow,randomBrickCol));
             number++;
-            if (number > 2){
+            if (GamePanel.level <= 5){
+                limit = 1;
+            }
+            else {
+                limit = 0;
+            }
+            if (number > limit){
                 number = 0;
                 break;
             }

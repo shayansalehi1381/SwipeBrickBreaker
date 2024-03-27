@@ -1,10 +1,10 @@
 import java.awt.*;
 
 public class Side extends Rectangle {
-    double yPos ;
-    public Side(int x, double y, int width, int height) {
+    int yPos ;
+    public Side(int x, int y, int width, int height) {
 
-        super(x, (int) y, width, height);
+        super(x,  y, width, height);
         yPos = y;
     }
 
@@ -15,7 +15,7 @@ public class Side extends Rectangle {
 
     public boolean intersects(Ball ball) {
         Rectangle ballRect = new Rectangle(ball.ballPosX, ball.ballPosY, ball.width, ball.height);
-        Rectangle sideRect = new Rectangle(x, (int) yPos, width, height);
+        Rectangle sideRect = new Rectangle(x,  yPos, width, height);
         return ballRect.intersects(sideRect);
     }
 

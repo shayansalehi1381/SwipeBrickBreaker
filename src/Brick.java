@@ -5,36 +5,36 @@ import java.util.Timer;
 
 public class Brick extends Rectangle{
     static ArrayList<Brick> allBricks = new ArrayList<>();
-    Random random;
     Side topSide;
     Side bottomSide;
     Side leftSide;
     Side rightSide;
-   // public Brick [][] bricks = new Brick[GamePanel.row][GamePanel.col];
-    int width =58;
-    int height =34;
+    int width =96;
+    int height =40;
     int rowNum = 0;
     int colNum = 0;
     int brickXpos;
-    double brickYpos;
+    int brickYpos;
 
-    int speed = 1;
+    static int speed = 1;
     int value ;
     int ID = 0;
+    int firstValue;
 
     static int nextID = 1;
 
     public Brick(int randomRow,int randomCol){
         value = GamePanel.level;
+        firstValue = value;
         rowNum = randomRow;
         colNum = randomCol;
         brickXpos = colNum*width;
         brickYpos = rowNum*height;
         allBricks.add(this);
-        topSide = new Side(brickXpos, brickYpos-3, width+3, 1);
-        bottomSide = new Side(brickXpos, brickYpos+3 + height , width+3, 1);
-        leftSide = new Side(brickXpos-3, brickYpos, 1, height+3);
-        rightSide = new Side(brickXpos + width+3, brickYpos, 1, height+3);
+        topSide = new Side(brickXpos + 5, brickYpos, width - 10, 1);
+        bottomSide = new Side(brickXpos + 5, brickYpos + height -2 , width - 10, 1);
+        leftSide = new Side(brickXpos +1, brickYpos, 1, height);
+        rightSide = new Side(brickXpos -1 + width, brickYpos, 1, height);
         ID = nextID++;
 
     }
@@ -48,7 +48,7 @@ public class Brick extends Rectangle{
             g.drawRect(brickXpos , (int) brickYpos,width,height);
             g.setColor(Color.white);
             g.setFont(new Font("Consolas",Font.BOLD,15));
-            g.drawString(String.valueOf(value),brickXpos + 26, (int) (brickYpos + 21));
+            g.drawString(String.valueOf(value),brickXpos + width/2 -5, (int) (brickYpos + height/2)+5);
 
 
             topSide.paint(g);
@@ -59,15 +59,7 @@ public class Brick extends Rectangle{
     }
 
 
-    public void brickSlowMove(){
-        if (GamePanel.playIsON == false) {
-            leftSide.y += speed;
-            rightSide.y += speed;
-            topSide.y += speed;
-           bottomSide.y += speed;
-            brickYpos += speed;
-        }
-    }
+
 
 
 

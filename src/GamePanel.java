@@ -6,12 +6,10 @@ import java.util.Iterator;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements MouseMotionListener, MouseListener, ActionListener, Runnable {
-    static int row = 20;
-    static int col = 10;
+
     static final int GAME_WIDTH = 600;
     static final int GAME_HEIGHT = 700;
     static final Dimension Screen_Size = new Dimension(GAME_WIDTH, GAME_HEIGHT);
-    boolean play = false;
     Border northBorder;
     Border southBorder;
     Border rightBorder;
@@ -32,19 +30,21 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     boolean ballGrounded = true;
     static boolean playIsON = false;
     static int level = 1;
-   // Brick brick;
-    boolean GameOver = false;
+
     boolean ballFirstTouch = false;
     int ballFirstCollisionToGround = 0;
-    private boolean levelIncremented = false;
+
     MapGenerator map ;
     long startTime;
     long elapsedTime;
+    double score;
+    double scoreFromBricks;
+    long TotalTime;
+    private boolean brickAdded = false;
+    private boolean levelIncremented = false;
+    private boolean gameOver = false;
 
 
-    private int aimStartX, aimStartY; // Starting point of aiming line
-    private int aimEndX, aimEndY;     // Ending point of aiming line
-    private boolean isAiming = false; // Flag to indicate if aiming is in progress
 
 
 
@@ -74,10 +74,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
     public void move() {
-        for (Brick brick:Brick.allBricks){
-            brick.brickSlowMove();
-        }
-        bricksSuddenMove();
+      //  brickSlowMove();
         ball.move();
     }
 
@@ -97,7 +94,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         double ns = 1000000000 / FPS;
         double delta = 0;
         timeLeft = endTime - System.currentTimeMillis();
-        while (true) {
+        while (!gameOver) {
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
@@ -105,7 +102,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
                 move();
                 checkCollision();
+                brickSlowMove();
                 GameOver();
+                ScoreCalculator();
                 repaint();
                 delta--;
                 elapsedTime = System.currentTimeMillis() - startTime;
@@ -133,9 +132,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 ballFirstTouch = true;
                 initialMouseX = mouseX;
                 initialMouseY = mouseY;
-           /*     System.out.println("you pressed the ball");
-                System.out.println("ready to start the game");
-                System.out.println("isPlay: "+ playIsON);*/
             }
 
 
@@ -153,8 +149,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                     mouseY = e.getY();
 
                     // Calculate velocity based on the difference between initial press and release positions
-                    int releaseVelocityX = ((mouseX - initialMouseX) / 45); // Adjust the division factor as needed
-                    int releaseVelocityY = ((mouseY - initialMouseY) / 35);
+                    int releaseVelocityX = ((mouseX - initialMouseX) / 70); // Adjust the division factor as needed
+                    int releaseVelocityY = ((mouseY - initialMouseY) / 70);
 
                     // Set the ball's velocity to the calculated velocity
                     ball.xVelocity = releaseVelocityX;
@@ -163,7 +159,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                     ball.savedYvelocity = ball.yVelocity;
                     ball.move();
                     ballGrounded = false;
-                    levelIncremented = false;
                     isDragging = false;
 
                     // Repaint the panel to remove the aiming line
@@ -171,6 +166,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 }
             }
         }
+        levelIncremented = false;
+        brickAdded = false;
     }
 
     @Override
@@ -215,8 +212,17 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             ball.xVelocity = 0;
             ballFirstCollisionToGround ++;
             ballGrounded = true;
-            levelIncremented = true;
             playIsON = false;
+            if (!levelIncremented) {
+                level++;
+                bricksSuddenMove();
+                levelIncremented = true;
+            }
+            if (!brickAdded) {
+                // Add a brick only if one hasn't been added already
+                map.makeRandomBricks();
+                brickAdded = true;
+            }
         }
     }
 
@@ -229,18 +235,21 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 ball.xVelocity = -ball.xVelocity;
                 brick.value--;
 
+
             }
             if (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide)){
                 ball.yVelocity = -ball.yVelocity;
                 brick.value--;
 
+
             }
             if (brick.value <= 0){
+                scoreFromBricks+=brick.firstValue;
                 iterator.remove();
 
             }
         }
-        checkLevel();
+
     }
 
 
@@ -254,12 +263,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 20));
         g.drawString(timeString, 350, 30);
-
-        // draw Game Level
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial",Font.BOLD,20));
-        g.drawString("Level: "+GamePanel.level,50,30);
-
 
         //bricks
         map.paint((Graphics2D) g);
@@ -288,32 +291,52 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         }
 
 
+        //score
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial",Font.BOLD,20));
+        g.drawString("Score: "+(int)score,30,50);
+
+        // draw Game Level
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial",Font.BOLD,20));
+        g.drawString("Level: "+GamePanel.level,30,30);
 
         g.dispose();
     }
 
 
 
-    public void checkLevel(){
-        if (Brick.allBricks.size() <= 0){
-         if (ballGrounded){
-             GamePanel.level += 1;
-             map = new MapGenerator();
-         }
-        }
-    }
+
 
 
 
 
     public void bricksSuddenMove() {
+        for (Brick brick:Brick.allBricks){
+            brick.brickYpos+=brick.height;
+            brick.rightSide.yPos+=brick.height;
+            brick.leftSide.yPos+=brick.height;
+            brick.topSide.yPos+=brick.height;
+            brick.bottomSide.yPos+=brick.height;
+        }
+    }
 
+    public void brickSlowMove(){
+        for (Brick brick : Brick.allBricks){
+            if (GamePanel.playIsON == false) {
+                brick.leftSide.yPos +=Brick.speed;
+                brick.rightSide.yPos += Brick.speed;
+                brick.topSide.yPos += Brick.speed;
+                brick.bottomSide.yPos += Brick.speed;
+                brick.brickYpos += Brick.speed;
+            }
+        }
     }
 
     public void GameOver(){
         for (Brick brick:Brick.allBricks){
             if (brick.brickYpos + brick.height >= southBorder.y){
-                System.out.println("game over");
+                gameOver = true;
             }
         }
     }
@@ -324,10 +347,18 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         long totalSeconds = milliseconds / 1000;
         long minutes = totalSeconds / 60;
         long seconds = totalSeconds % 60;
-
+        TotalTime = totalSeconds;
         // Format the time string
         return String.format("%02d:%02d", minutes, seconds);
     }
+
+
+    public int ScoreCalculator(){
+        score = (scoreFromBricks - TotalTime/4);
+        return (int)score;
+    }
+
+
 
 }
 
