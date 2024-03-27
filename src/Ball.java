@@ -23,11 +23,11 @@ public class Ball extends Rectangle  {
     int savedYvelocity ;
     int savedXvelocity ;
    static ArrayList<Ball> allBalls = new ArrayList<>();
-    public Ball(){
+    public Ball(int ballPosX,int ballPosY){
         super();
         ID = nextID++;
-        ballPosY = GamePanel.GAME_HEIGHT - 69;
-        ballPosX = GamePanel.GAME_WIDTH/2 - 20;
+        this.ballPosY = ballPosY;
+        this.ballPosX = ballPosX;
         allBalls.add(this);
         random = new Random();
         balls.add(this);

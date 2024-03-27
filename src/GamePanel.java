@@ -23,13 +23,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     long lastTime;
     long endTime;
     long timeLeft;
-    Ball ball;
+    Ball firstBall;
     private int mouseX, mouseY;
     private boolean isDragging = false;
     private int initialMouseX, initialMouseY;
     boolean ballGrounded = true;
     static boolean playIsON = false;
-    static int level = 1;
+    static int level = 0;
 
     boolean ballFirstTouch = false;
     int ballFirstCollisionToGround = 0;
@@ -55,7 +55,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         southBorder = new Border(0, GAME_HEIGHT - 46, GAME_WIDTH, 10);
         rightBorder = new Border(GAME_WIDTH - 23, 0, 10, GAME_HEIGHT);
         leftBorder = new Border(0, 0, 10, GAME_HEIGHT);
-        ball = new Ball();
+        firstBall = new Ball(GAME_WIDTH/2 - 20 , GAME_HEIGHT );
+
 
         addMouseListener(this);
         addMouseMotionListener(this);
@@ -75,14 +76,18 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     public void move() {
       //  brickSlowMove();
-        ball.move();
+        for (Ball ball:Ball.allBalls){
+            ball.move();
+        }
     }
 
 
     public void checkCollision() {
+        for (Ball ball:Ball.allBalls){
+            checkCollisionForBorders(ball);
+            checkCollisionForBricks(ball);
+        }
 
-        checkCollisionForBorders(ball);
-        checkCollisionForBricks(ball);
     }
 
     @Override
@@ -119,23 +124,19 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void mousePressed(MouseEvent e) {
-
-
             mouseX = e.getX();
             mouseY = e.getY();
-
-            // Check if the mouse is pressed within the ball area
-            if (mouseX >= ball.ballPosX && mouseX <= ball.ballPosX + ball.width &&
-                    mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + ball.height) {
-                playIsON = false;
-                isDragging = true;
-                ballFirstTouch = true;
-                initialMouseX = mouseX;
-                initialMouseY = mouseY;
+            for (Ball ball:Ball.allBalls){
+                // Check if the mouse is pressed within the ball area
+                if (mouseX >= ball.ballPosX && mouseX <= ball.ballPosX + ball.width &&
+                        mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + ball.height) {
+                    playIsON = false;
+                    isDragging = true;
+                    ballFirstTouch = true;
+                    initialMouseX = mouseX;
+                    initialMouseY = mouseY;
+                }
             }
-
-
-
     }
 
     @Override
@@ -151,18 +152,19 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                     // Calculate velocity based on the difference between initial press and release positions
                     int releaseVelocityX = ((mouseX - initialMouseX) / 70); // Adjust the division factor as needed
                     int releaseVelocityY = ((mouseY - initialMouseY) / 70);
+                    for (Ball ball:Ball.allBalls){
+                        // Set the ball's velocity to the calculated velocity
+                        ball.xVelocity = releaseVelocityX;
+                        ball.yVelocity = releaseVelocityY;
+                        ball.savedXvelocity = ball.xVelocity;
+                        ball.savedYvelocity = ball.yVelocity;
+                        ball.move();
+                        ballGrounded = false;
+                        isDragging = false;
 
-                    // Set the ball's velocity to the calculated velocity
-                    ball.xVelocity = releaseVelocityX;
-                    ball.yVelocity = releaseVelocityY;
-                    ball.savedXvelocity = ball.xVelocity;
-                    ball.savedYvelocity = ball.yVelocity;
-                    ball.move();
-                    ballGrounded = false;
-                    isDragging = false;
-
-                    // Repaint the panel to remove the aiming line
-                    repaint();
+                        // Repaint the panel to remove the aiming line
+                        repaint();
+                    }
                 }
             }
         }
@@ -277,7 +279,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
         //ball
-        ball.paint(g);
+        for (Ball ball:Ball.allBalls){
+            ball.paint(g);
+        }
 
         // Draw aiming line if the mouse is being dragged
         if (isDragging) {
