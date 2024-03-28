@@ -1,14 +1,10 @@
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Ball extends Rectangle  {
     int ID = 0;
     static int nextID = 1;
-    static ArrayList<Ball> balls = new ArrayList<>();
     Random random;
 
      int ballPosX ;
@@ -23,6 +19,8 @@ public class Ball extends Rectangle  {
     int savedYvelocity ;
     int savedXvelocity ;
    static ArrayList<Ball> allBalls = new ArrayList<>();
+   static ArrayList<Integer> IDs = new ArrayList<>();
+  static Color color = new Color(0x04E884);
     public Ball(int ballPosX,int ballPosY){
         super();
         ID = nextID++;
@@ -30,13 +28,11 @@ public class Ball extends Rectangle  {
         this.ballPosX = ballPosX;
         allBalls.add(this);
         random = new Random();
-        balls.add(this);
-
-
+        IDs.add(ID);
     }
 
     public void paint(Graphics g){
-        g.setColor(Color.green);
+        g.setColor(color);
         g.fillOval(ballPosX,ballPosY,width,height);
     }
     public void move(){
@@ -50,11 +46,28 @@ public class Ball extends Rectangle  {
         return ballRect.intersects(sideRect);
     }
 
+    public boolean intersects(Item item){
+        Rectangle ballRect = new Rectangle(ballPosX,ballPosY,width,height);
+        Rectangle itemRect = new Rectangle(item.xPos,item.yPos,item.width,item.height);
+        return  ballRect.intersects(itemRect);
+    }
+
 
 
     public String toString(){
         return "x: "+ ballPosX +" "+"y:"+ballPosY+" "+"width:"+width+" "+"height: "+height +" ID:"+ID;
     }
+
+    public static Ball getBallById(int ID) {
+        for (Ball ball : allBalls) {
+            if (ball.ID == ID) {
+                return ball;
+            }
+        }
+        // Return null if no ball with the given ID is found
+        return null;
+    }
+
 
 
 

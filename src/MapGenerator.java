@@ -16,8 +16,8 @@ public class MapGenerator {
     public void makeRandomBricks(){
 
         while (true){
-            int randomBrickRow = random.nextInt(6);
-            int randomBrickCol = random.nextInt(4);
+            int randomBrickRow = random.nextInt(3);
+            int randomBrickCol = random.nextInt(5);
             brickHashSet.add(new Brick(randomBrickRow,randomBrickCol));
             number++;
             if (GamePanel.level <= 5){
