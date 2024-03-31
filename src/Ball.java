@@ -16,8 +16,7 @@ public class Ball extends Rectangle  {
      int width = 15;
      int height = 15;
 
-    int savedYvelocity ;
-    int savedXvelocity ;
+
    static ArrayList<Ball> allBalls = new ArrayList<>();
    static ArrayList<Integer> IDs = new ArrayList<>();
   static Color color = new Color(0x04E884);
@@ -27,13 +26,16 @@ public class Ball extends Rectangle  {
         this.ballPosY = ballPosY;
         this.ballPosX = ballPosX;
         allBalls.add(this);
-        random = new Random();
+        //random = new Random();
         IDs.add(ID);
     }
 
     public void paint(Graphics g){
         g.setColor(color);
         g.fillOval(ballPosX,ballPosY,width,height);
+        g.setColor(Color.black);
+        g.setFont(new Font("Arial",Font.BOLD,8));
+        g.drawString(String.valueOf(this.ID),ballPosX+4,ballPosY+10);
     }
     public void move(){
         ballPosX+=xVelocity;

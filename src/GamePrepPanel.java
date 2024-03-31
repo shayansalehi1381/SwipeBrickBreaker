@@ -131,7 +131,7 @@ public class GamePrepPanel extends JPanel implements ActionListener {
         if (e.getSource() == colorButton){
             JColorChooser colorChooser=new JColorChooser();
 
-            Color newcolor=JColorChooser.showDialog(null,"pick a color",Color.white);
+            Color newcolor=JColorChooser.showDialog(null,"pick a color",Color.green);
                 Ball.color = newcolor;
                 GamePanel.aimColor = newcolor;
         }
@@ -150,17 +150,17 @@ public class GamePrepPanel extends JPanel implements ActionListener {
         }
 
         if (e.getSource() == easyButton){
-            GamePanel.easy = true;
+
             GamePanel.medium = false;
             GamePanel.hard = false;
         }
         else if (e.getSource() == normalButton){
-            GamePanel.easy = false;
+
             GamePanel.medium = true;
             GamePanel.hard = false;
         }
         else if (e.getSource() == hardButton){
-            GamePanel.easy = false;
+
             GamePanel.medium = false;
             GamePanel.hard = true;
         }

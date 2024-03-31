@@ -2,14 +2,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Timer;
 
 public class HistoryPanel extends JPanel implements ActionListener {
     static ArrayList<Player> players = new ArrayList<>();
+    JList<String> historyList;
+    DefaultListModel<String> listModel;
     JButton backButton;
     GameFrame frame;
     MainPanel mainPanel;
     public HistoryPanel(GameFrame frame ,MainPanel mainPanel){
+
+
+
         this.frame = frame;
         this.mainPanel = mainPanel;
         setBackground(Color.BLACK);
@@ -28,6 +36,30 @@ public class HistoryPanel extends JPanel implements ActionListener {
         mainPageLabel.setFont(new Font("Arial",Font.PLAIN,20));
 
         add(mainPageLabel);
+
+
+
+
+        listModel = new DefaultListModel<>();
+        historyList = new JList<>(listModel);
+        historyList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        historyList.setLayoutOrientation(JList.VERTICAL);
+        JScrollPane scrollPane = new JScrollPane(historyList);
+        add(scrollPane, BorderLayout.CENTER);
+
+
+
+
+
+        displayHistory();
+    }
+
+
+    public void displayHistory() {
+        listModel.clear();
+        for (Player player : players) {
+            listModel.addElement(player.toString());
+        }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -36,4 +68,7 @@ public class HistoryPanel extends JPanel implements ActionListener {
         frame.revalidate();
         frame.repaint();
     }
+
+
+
 }

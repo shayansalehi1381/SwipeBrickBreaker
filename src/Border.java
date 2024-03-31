@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Border extends Rectangle {
 
-    int x,y,width,height;
+    int xpos,ypos,Width,Height;
     public Border(int x,int y,int width,int height){
         super();
         this.x = x;
@@ -14,7 +14,7 @@ public class Border extends Rectangle {
 
     public void paint(Graphics g){
         g.setColor(Color.black);
-        g.fillRect(x,y,width,height);
+        g.fillRect(x,y,Width,Height);
     }
 
     public String toString(){

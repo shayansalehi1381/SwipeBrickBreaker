@@ -20,11 +20,18 @@ public class MapGenerator {
             int randomBrickCol = random.nextInt(5);
             brickHashSet.add(new Brick(randomBrickRow,randomBrickCol));
             number++;
-            if (GamePanel.level <= 5){
-                limit = 1;
+            if (GamePanel.hard == true){
+                GamePanel.medium = false;
+                limit = 3;
+            }
+            else if (GamePanel.medium == true){
+                GamePanel.hard = false;
+                limit = 2;
             }
             else {
-                limit = 0;
+                GamePanel.medium = false;
+                GamePanel.hard = false;
+                limit = 1;
             }
             if (number > limit){
                 number = 0;
@@ -35,8 +42,9 @@ public class MapGenerator {
     }
 
     public void paint(Graphics2D g ){
-        for (Brick brick : Brick.allBricks){
-            brick.paint(g);
-        }
+     for (int i = 0 ; i < Brick.allBricks.size(); i++){
+         Brick brick = Brick.allBricks.get(i);
+         brick.paint(g);
+     }
     }
 }

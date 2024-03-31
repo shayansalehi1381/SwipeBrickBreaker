@@ -1,3 +1,5 @@
+
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -32,8 +34,7 @@ public class GameFrame extends JFrame {
         mainPanel = new MainPanel(this);
 
         this.add(mainPanel);
-       // gamePanel = new GamePanel();
-      //  this.add(gamePanel);
+
 
         this.setTitle("Swipe Brick Breaker");
         this.setBounds(10, 10, 600, 700);

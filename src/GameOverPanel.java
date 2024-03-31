@@ -29,6 +29,8 @@ public class GameOverPanel extends JPanel implements ActionListener {
 
 
         JLabel scoreLabel = new JLabel("SCORE: "+GamePanel.score);
+
+        //GamePanel.scoreBeforeResetGame = 0;
         scoreLabel.setForeground(Color.white);
         scoreLabel.setBackground(Color.black);
         scoreLabel.setBounds(150,120,200,60);

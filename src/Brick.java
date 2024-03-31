@@ -16,15 +16,47 @@ public class Brick extends Rectangle{
     int brickXpos;
     int brickYpos;
 
-    static int speed = 1;
+    static int speed ;
     int value ;
     int ID = 0;
     int firstValue;
 
     static int nextID = 1;
 
+
     public Brick(int randomRow,int randomCol){
+        if (GamePanel.hard){
+            speed = 3;
+            GamePanel.medium = false;
+        }
+        else if (GamePanel.medium){
+            speed = 2;
+            GamePanel.hard = false;
+        }
+        else {
+            speed = 1;
+            GamePanel.hard = false;
+            GamePanel.medium = false;
+        }
+
         value = GamePanel.level;
+
+        if (GamePanel.medium){
+            GamePanel.hard = false;
+           value++;
+        }
+        else if (GamePanel.hard){
+            GamePanel.medium = false;
+            GamePanel.level+=2;
+            value+=2;
+        }
+        else {
+            GamePanel.hard = false;
+            GamePanel.medium = false;
+
+        }
+
+
         firstValue = value;
         rowNum = randomRow;
         colNum = randomCol;

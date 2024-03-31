@@ -1,11 +1,18 @@
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements MouseMotionListener, MouseListener, ActionListener, Runnable {
+
     Player player;
     static Color aimColor = new Color(0x04E884);
 
@@ -29,9 +36,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     static boolean playIsON = false;
     static int level = 0;
 
-    boolean ballFirstTouch = false;
-    int ballFirstCollisionToGround = 0;
-
     MapGenerator map;
     long startTime;
     long elapsedTime;
@@ -44,24 +48,36 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     private boolean addNewBall = false;
     int numberOfBallItemsToBuildBalls = 0;
     ArrayList<Integer> ballitemArrayListToBuildBalls = new ArrayList<>();
-    static boolean easy = false;
     static boolean medium = false;
     static boolean hard = false;
     GameFrame frame;
     GameOverPanel gameOverPanel;
     double FPS ;
     int played = 0;
+    private boolean paused = false;
+    static int scoreBeforeResetGame;
+    boolean firstBallCollision = false;
+    private boolean executed = false;
+    private final int BALL_MOVE_DELAY_MS = 500; // Delay between each ball movement in milliseconds
+    private ArrayList<Long> ballShotTimes = new ArrayList<>();
+
+
+
 
 
     GamePanel(GameFrame frame) {
-        this.frame = frame;
+
+        setLayout(null);
+
+
         player = new Player();
+        this.frame = frame;
         setPreferredSize(Screen_Size);
         northBorder = new Border(0, 0, GAME_WIDTH, 10);
         southBorder = new Border(0, GAME_HEIGHT - 46, GAME_WIDTH, 10);
         rightBorder = new Border(GAME_WIDTH - 23, 0, 10, GAME_HEIGHT);
         leftBorder = new Border(0, 0, 10, GAME_HEIGHT);
-        firstBall = new Ball(GAME_WIDTH / 2 - 20, GAME_HEIGHT);
+        firstBall = new Ball(GAME_WIDTH / 2 - 20, GAME_HEIGHT );
 
 
         addMouseListener(this);
@@ -74,6 +90,39 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         map = new MapGenerator();
         gameOverPanel = new GameOverPanel(this.frame, this);
 
+
+        // Set up key bindings for pausing and resuming the game
+        InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = getActionMap();
+
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "pauseGame");
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0), "resumeGame");
+        actionMap.put("pauseGame", new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                pauseGame();
+            }
+        });
+        actionMap.put("resumeGame", new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                resumeGame();
+            }
+        });
+
+
+    }
+
+
+    private void pauseGame() {
+        paused = true;
+        stopGameThread();
+        // Additional pause-related actions if needed
+    }
+
+    // Method to resume the game
+    private void resumeGame() {
+        paused = false;
+        startGameThread();
+        // Additional resume-related actions if needed
     }
 
     @Override
@@ -82,8 +131,16 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
     public void move() {
-        for (Ball ball : Ball.allBalls) {
-            ball.move();
+        long currentTime = System.currentTimeMillis();
+
+        // Loop through all the balls
+        for (int i = 0; i < Ball.allBalls.size(); i++) {
+            Ball ball = Ball.allBalls.get(i);
+
+            // Check if enough time has elapsed since the ball was shot
+            if (i < ballShotTimes.size() && currentTime - ballShotTimes.get(i) >= BALL_MOVE_DELAY_MS) {
+                ball.move();
+            }
         }
     }
 
@@ -100,29 +157,37 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     @Override
     public void run() {
+
         startTime = System.currentTimeMillis();
         lastTime = System.nanoTime();
         endTime = System.currentTimeMillis();
          FPS = 40.0;
        played++;
-        System.out.println("played: "+played);
         double ns = 1000000000 / FPS;
         double delta = 0;
         timeLeft = endTime - System.currentTimeMillis();
         while (!gameOver) {
+
             long now = System.nanoTime();
             delta += (now - lastTime) / ns;
             lastTime = now;
-            if (delta >= 1) {
+            while (delta >= 1) {
+                if (!paused){
+                    move();
+                    checkCollision();
+                    brickSlowMove();
+                    GameOver();
+                    ScoreCalculator();
+                    repaint();
+                    delta--;
+                    elapsedTime = System.currentTimeMillis() - startTime;
+                }
+                try {
+                    Thread.sleep((long) (1000/FPS));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-                move();
-                checkCollision();
-                brickSlowMove();
-                GameOver();
-                ScoreCalculator();
-                repaint();
-                delta--;
-                elapsedTime = System.currentTimeMillis() - startTime;
             }
         }
     }
@@ -143,7 +208,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                     mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + ball.height) {
                 playIsON = false;
                 isDragging = true;
-                ballFirstTouch = true;
+            //    ballFirstTouch = true;
                 initialMouseX = mouseX;
                 initialMouseY = mouseY;
             }
@@ -154,7 +219,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     public void mouseReleased(MouseEvent e) {
 
         if (playIsON == false) {
-            if (ballFirstTouch == true) {
+        //    if (ballFirstTouch == true) {
                 playIsON = true;
                 if (isDragging) {
                     mouseX = e.getX();
@@ -168,8 +233,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                         // Set the ball's velocity to the calculated velocity
                         ball.xVelocity = releaseVelocityX;
                         ball.yVelocity = releaseVelocityY;
-                        ball.savedXvelocity = ball.xVelocity;
-                        ball.savedYvelocity = ball.yVelocity;
+
                         ball.move();
                         ballGrounded = false;
                         isDragging = false;
@@ -178,10 +242,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                         repaint();
                     }
                 }
-            }
+         //   }
         }
         levelIncremented = false;
         brickAdded = false;
+        // Add the current time when the ball is shot
+        long currentTime = System.currentTimeMillis();
+        ballShotTimes.add(currentTime);
     }
 
     @Override
@@ -201,7 +268,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         mouseY = e.getY();
         // Repaint the panel to update the aiming line
         repaint();
+
     }
+
 
     @Override
     public void mouseMoved(MouseEvent e) {
@@ -224,28 +293,34 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             ball.ballPosY = southBorder.y - ball.height;
             ball.yVelocity = 0;
             ball.xVelocity = 0;
-            ballFirstCollisionToGround++;
+            ball.ballPosX = firstBall.ballPosX;
+            ball.ballPosY = firstBall.ballPosY;
+
+
             ballGrounded = true;
             playIsON = false;
+
+
             if (!levelIncremented) {
                 level++;
+
                 bricksSuddenMove();
+
+                if (level > 1){
+                    firstBallCollision = true;
+                    System.out.println("hello");
+                    new Ball(firstBall.ballPosX,firstBall.ballPosY);
+                }
                 levelIncremented = true;
             }
             if (!brickAdded) {
                 // Add a brick only if one hasn't been added already
+
                 map.makeRandomBricks();
                 brickAdded = true;
                 new Ballitem();
             }
-            if (addNewBall) {
-                Ball ball1 = Ball.getBallById(Ball.allBalls.size());
-                for (int i = 0; i < numberOfBallItemsToBuildBalls; i++) {
-                    new Ball(ball1.ballPosX, ball1.ballPosY);
-                }
-                addNewBall = false;
-
-            }
+           // executeOnce();
         }
     }
 
@@ -303,10 +378,10 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
-    public void paint(Graphics g) {
-        //backGround
+   public void paint(Graphics g) {
+
         g.setColor(Color.white);
-        g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        g.fillRect(0,0,GAME_WIDTH,GAME_HEIGHT);
 
         //time Passed
         String timeString = "Time Passed: " + formatTime(elapsedTime);
@@ -353,7 +428,15 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         //score
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " + (int) score, 30, 50);
+        g.drawString("Score: " +(int) score, 30, 50);
+
+        //pause & resume
+       g.setColor(Color.black);
+       g.setFont(new Font("Arial", Font.BOLD, 10));
+       g.drawString("Press 'P' to pause the game", 150, 20);
+       g.setColor(Color.black);
+       g.setFont(new Font("Arial", Font.BOLD, 10));
+       g.drawString("Press 'R' to resume the game", 150, 35);
 
         // draw Game Level
         g.setColor(Color.BLACK);
@@ -394,9 +477,11 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     public void GameOver() {
         for (Brick brick : Brick.allBricks) {
             if (brick.brickYpos + brick.height >= southBorder.y) {
+                scoreBeforeResetGame = (int)score;
                 gameOver = true;
-                if (gameOver == true) {
 
+               if (gameOver == true) {
+                   System.out.println("game panel:"+score);
                     frame.getContentPane().removeAll();
                     frame.getContentPane().add(gameOverPanel);
                     frame.revalidate();
@@ -414,14 +499,15 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         Brick.allBricks.clear();
         Ballitem.ballitems.clear();
         level = -1;
+
         score = 0;
-        ballFirstCollisionToGround = 0;
+
         scoreFromBricks = 0;
         numberOfBallItemsToBuildBalls = 0;
         isDragging = false;
         ballGrounded = true;
         playIsON = false;
-        ballFirstTouch = false;
+        //ballFirstTouch = false;
         brickAdded = false;
         levelIncremented = false;
         addNewBall = false;
@@ -451,7 +537,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
     public int ScoreCalculator() {
-        score = (scoreFromBricks - TotalTime / 4);
+        score = (scoreFromBricks - TotalTime / 10);
         return (int) score;
     }
 
@@ -461,12 +547,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     public void stopGameThread() {
         // Check if the game thread is running and interrupt it
-     /*   if (gameThread != null && gameThread.isAlive()) {
-            gameThread.interrupt();
-            gameThread = null;
-        }*/
-
-
         if (gameThread != null && gameThread.isAlive()) {
             gameThread.interrupt();
 
@@ -480,6 +560,21 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
 
+    }
+
+    public void addBallToBalls(){
+        Ball ball1 = Ball.getBallById(firstBall.ID);
+        Ball ball = new Ball(ball1.ballPosX,ball1.ballPosY);
+
+    }
+
+    private void executeOnce() {
+        if (!executed) {
+            // Execute the method here
+            addBallToBalls();
+            // This block will run only once
+            executed = true;
+        }
     }
 
 
