@@ -7,9 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 
 public class GamePanel extends JPanel implements MouseMotionListener, MouseListener, ActionListener, Runnable {
 
@@ -58,8 +56,10 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     static int scoreBeforeResetGame;
     boolean firstBallCollision = false;
     private boolean executed = false;
-    private final int BALL_MOVE_DELAY_MS = 500; // Delay between each ball movement in milliseconds
-    private ArrayList<Long> ballShotTimes = new ArrayList<>();
+    private Map<Integer, Long> ballShotTimes = new HashMap<>();
+
+    // Define a constant for the delay between shots (in milliseconds)
+    private static final int BALL_MOVE_DELAY_MS = 60;
 
 
 
@@ -133,13 +133,23 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     public void move() {
         long currentTime = System.currentTimeMillis();
 
-        // Loop through all the balls
-        for (int i = 0; i < Ball.allBalls.size(); i++) {
-            Ball ball = Ball.allBalls.get(i);
+        // Iterate through all the balls
+        for (int i = Ball.allBalls.size(); i >= 1; i--) {
+            Ball ball = Ball.allBalls.get(i - 1); // Adjust index to start from 0
 
             // Check if enough time has elapsed since the ball was shot
-            if (i < ballShotTimes.size() && currentTime - ballShotTimes.get(i) >= BALL_MOVE_DELAY_MS) {
+            if (ballShotTimes.containsKey(i) && currentTime - ballShotTimes.get(i) >= BALL_MOVE_DELAY_MS) {
                 ball.move();
+
+                // Check if there's a next ball
+                if (i > 1) {
+                    // If the previous ball has finished moving, shoot the next ball
+                    long previousBallShotTime = ballShotTimes.get(i);
+                    long nextBallShotTime = previousBallShotTime + BALL_MOVE_DELAY_MS;
+                    if (currentTime >= nextBallShotTime) {
+                        ballShotTimes.put(i - 1, nextBallShotTime);
+                    }
+                }
             }
         }
     }
@@ -161,7 +171,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         startTime = System.currentTimeMillis();
         lastTime = System.nanoTime();
         endTime = System.currentTimeMillis();
-         FPS = 40.0;
+         FPS = 60.0;
        played++;
         double ns = 1000000000 / FPS;
         double delta = 0;
@@ -246,10 +256,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         }
         levelIncremented = false;
         brickAdded = false;
-        // Add the current time when the ball is shot
+        // Add the current time when the ball is shot for the current ball ID
+        int currentBallID = Ball.allBalls.size();
         long currentTime = System.currentTimeMillis();
-        ballShotTimes.add(currentTime);
+        ballShotTimes.put(currentBallID, currentTime);
     }
+
+
 
     @Override
     public void mouseEntered(MouseEvent e) {
@@ -293,8 +306,12 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             ball.ballPosY = southBorder.y - ball.height;
             ball.yVelocity = 0;
             ball.xVelocity = 0;
-            ball.ballPosX = firstBall.ballPosX;
-            ball.ballPosY = firstBall.ballPosY;
+            if (ball.ID != 1){
+                ball.ballPosX = firstBall.ballPosX;
+                ball.ballPosY = firstBall.ballPosY;
+            }
+
+         //   GAME_WIDTH / 2 - 20, GAME_HEIGHT
 
 
             ballGrounded = true;
@@ -308,8 +325,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
                 if (level > 1){
                     firstBallCollision = true;
-                    System.out.println("hello");
                     new Ball(firstBall.ballPosX,firstBall.ballPosY);
+
                 }
                 levelIncremented = true;
             }
@@ -326,29 +343,17 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
     public void checkCollisionForItemBall(Ball ball) {
-        Iterator<Ballitem> iterator = Ballitem.ballitems.iterator();
-        for (Item item : Item.items) {
-            if (item instanceof Ballitem) {
-                if (ball.intersects(item) == true) {
-
-
-                    // System.out.println("hi");
-                    ballitemArrayListToBuildBalls.add(1);
-                    ((Ballitem) item).collidedWithBall = true;
-                    Ballitem.ballitems.remove(item);
-
+        for (int i = 0 ; i < Ballitem.ballitems.size(); i ++) {
+            Ballitem ballitem = Ballitem.ballitems.get(i);
+                if (ball.intersects(ballitem) == true) {
+                     System.out.println("hi");
+                    ballitem.collidedWithBall = true;
+                    Ballitem.ballitems.remove(ballitem);
                 }
-                if (((Ballitem) item).collidedWithBall == true) {
-                    if (ballGrounded) {
-                        addNewBall = true;
-                        ((Ballitem) item).collidedWithBall = false;
-                    }
+                if (ballitem.collidedWithBall == true) {
+                    new Ball(firstBall.ballPosX,firstBall.ballPosY);
                 }
-            }
         }
-        numberOfBallItemsToBuildBalls = ballitemArrayListToBuildBalls.size();
-       // System.out.println(ballitemArrayListToBuildBalls.size());
-        ballitemArrayListToBuildBalls.clear();
     }
 
 
@@ -453,18 +458,33 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
     public void bricksSuddenMove() {
-        for (Brick brick : Brick.allBricks) {
-            brick.brickYpos += brick.height;
-            brick.rightSide.yPos += brick.height;
-            brick.leftSide.yPos += brick.height;
-            brick.topSide.yPos += brick.height;
-            brick.bottomSide.yPos += brick.height;
+        boolean allBallsGrounded =false;
+        for (Ball ball:Ball.allBalls){
+            if (ball.ballPosY + ball.height >= southBorder.y){
+                allBallsGrounded = true;
+            }
         }
+        if (allBallsGrounded){
+            for (Brick brick : Brick.allBricks) {
+                brick.brickYpos += brick.height;
+                brick.rightSide.yPos += brick.height;
+                brick.leftSide.yPos += brick.height;
+                brick.topSide.yPos += brick.height;
+                brick.bottomSide.yPos += brick.height;
+            }
+        }
+
     }
 
     public void brickSlowMove() {
+        boolean allBallsGrounded =false;
+        for (Ball ball:Ball.allBalls){
+            if (ball.ballPosY + ball.height >= southBorder.y){
+                allBallsGrounded = true;
+            }
+        }
         for (Brick brick : Brick.allBricks) {
-            if (GamePanel.playIsON == false) {
+            if (allBallsGrounded) {
                 brick.leftSide.yPos += Brick.speed;
                 brick.rightSide.yPos += Brick.speed;
                 brick.topSide.yPos += Brick.speed;

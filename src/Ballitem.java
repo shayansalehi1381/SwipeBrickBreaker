@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Ballitem extends RegularItem {
         static ArrayList<Ballitem> ballitems = new ArrayList<>();
-    boolean collidedWithBall = false;
+
     public Ballitem() {
         super();
         ballitems.add(this);

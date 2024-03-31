@@ -11,6 +11,7 @@ public abstract class Item extends Rectangle {
    public int xPos;
     public int yPos;
     static int speed = 1;
+    public boolean collidedWithBall = false;
 
     public static ArrayList<Item> items = new ArrayList<>();
 
