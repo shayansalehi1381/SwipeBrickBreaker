@@ -61,6 +61,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     // Define a constant for the delay between shots (in milliseconds)
     private static final int BALL_MOVE_DELAY_MS = 60;
+    boolean vertigoCollision = false;
+
 
 
 
@@ -164,6 +166,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             checkCollisionForItemBall(ball);
             checkCoillisionForSpeedItem(ball);
             checkCollisionForPowerItem(ball);
+            checkCollisionForVertigoItems(ball);
         }
 
     }
@@ -342,9 +345,10 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 if (level %4 == 0){
                     new SpeedItem();
                 }
-              //  if (level %5 == 0){
+                if (level %5 == 0){
                     new PowerItem();
-             //   }
+                }
+                new VertigoItem();
 
             }
            // executeOnce();
@@ -411,7 +415,41 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
+    public void checkCollisionForVertigoItems(Ball ball){
+        for (int i = 0 ; i < VertigoItem.vertigoItems.size(); i ++) {
+            VertigoItem vertigoItem = VertigoItem.vertigoItems.get(i);
+            if (ball.intersects(vertigoItem) == true) {
+                vertigoItem.collidedWithBall = true;
+                VertigoItem.vertigoItems.remove(vertigoItem);
+                vertigoCollision = true;
 
+                // Schedule to reset the aiming line after 5 seconds
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        vertigoCollision = false; // Reset the flag after 5 seconds
+                    }
+                }, 5000); // 5 seconds in milliseconds
+            }
+            }
+        }
+
+
+    private int calculateHighestLevel() {
+        int highestLevel = 1; // Initialize to the minimum level, assuming level starts from 1
+
+        // Iterate through all completed levels and update highestLevel if needed
+        // You'll need to adapt this logic based on how your game tracks level progress
+        for (int i = 0; i < level; i++) {
+            int completedLevel = level-1;
+            if (completedLevel > highestLevel) {
+                highestLevel = completedLevel;
+            }
+        }
+
+        return highestLevel;
+    }
 
 
 
@@ -477,19 +515,17 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
        //RegularItems:
 
-        //ballItem
         for (Ballitem ballitem : Ballitem.ballitems) {
             ballitem.paint(g);
         }
-
-        //speedItem
-
        for (SpeedItem speedItem:SpeedItem.speedItems){
            speedItem.paint(g);
        }
-
        for (PowerItem powerItem:PowerItem.powerItems){
            powerItem.paint(g);
+       }
+       for (VertigoItem vertigoItem:VertigoItem.vertigoItems){
+           vertigoItem.paint(g);
        }
 
 
@@ -510,7 +546,18 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             Graphics2D g2d = (Graphics2D) g;
             Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
             g2d.setStroke(dashed);
-            g2d.drawLine(initialMouseX, initialMouseY, mouseX, mouseY);
+           if (vertigoCollision){
+               int xVertigo = -mouseX;
+               int yVertigo = -mouseY;
+               g2d.drawLine(initialMouseX, initialMouseY, xVertigo, yVertigo);
+              // vertigoCollision = false;
+           }
+           else
+                g2d.drawLine(initialMouseX, initialMouseY, mouseX, mouseY);
+
+
+
+
         }
 
 
