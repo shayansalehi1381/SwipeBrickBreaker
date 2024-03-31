@@ -33,9 +33,6 @@ public abstract class Item extends Rectangle {
         items.add(this);
     }
 
-    public void ability(){
-
-    }
     private boolean collidesWithBrick(int x, int y) {
         for (Brick brick : Brick.allBricks) {
             if (brick.intersects(new Rectangle(x, y, width, height))) {

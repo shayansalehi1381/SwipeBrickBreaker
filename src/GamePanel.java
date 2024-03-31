@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.Timer;
 
 public class GamePanel extends JPanel implements MouseMotionListener, MouseListener, ActionListener, Runnable {
 
@@ -161,6 +162,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             checkCollisionForBorders(ball);
             checkCollisionForBricks(ball);
             checkCollisionForItemBall(ball);
+            checkCoillisionForSpeedItem(ball);
         }
 
     }
@@ -336,6 +338,10 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 map.makeRandomBricks();
                 brickAdded = true;
                 new Ballitem();
+                if (level %4 == 0){
+                    new SpeedItem();
+                }
+
             }
            // executeOnce();
         }
@@ -346,7 +352,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         for (int i = 0 ; i < Ballitem.ballitems.size(); i ++) {
             Ballitem ballitem = Ballitem.ballitems.get(i);
                 if (ball.intersects(ballitem) == true) {
-                     System.out.println("hi");
+
                     ballitem.collidedWithBall = true;
                     Ballitem.ballitems.remove(ballitem);
                 }
@@ -355,6 +361,34 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 }
         }
     }
+
+    public void checkCoillisionForSpeedItem(Ball ball){
+        Iterator<SpeedItem> iterator = SpeedItem.speedItems.iterator();
+        while (iterator.hasNext()) {
+            SpeedItem speedItem = iterator.next();
+            if (ball.intersects(speedItem)) {
+                speedItem.collidedWithBall = true;
+                iterator.remove(); // Remove the SpeedItem from the list
+
+                // Apply speed boost to the ball
+                for (Ball ball1:Ball.allBalls){
+                    ball1.xVelocity*=2;
+                    ball1.yVelocity*=2;
+                }
+
+                // Schedule to revert the velocity after 15 seconds
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        ball.xVelocity/=2;
+                        ball.yVelocity/=2;// Reset the velocity to its original value
+                    }
+                }, 15000); // 15 seconds in milliseconds
+            }
+        }
+    }
+
 
 
     public void checkCollisionForBricks(Ball ball) {
@@ -405,12 +439,26 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         leftBorder.paint(g);
 
 
+        //****************************************************************************************
+       items:
+
+
+       //RegularItems:
+
         //ballItem
         for (Ballitem ballitem : Ballitem.ballitems) {
             ballitem.paint(g);
         }
 
+        //speedItem
 
+       for (SpeedItem speedItem:SpeedItem.speedItems){
+           speedItem.paint(g);
+       }
+
+
+
+        //******************************************************************************************
         //ball
         for (int i = 0; i < Ball.allBalls.size(); i++) {
             Ball ball = Ball.allBalls.get(i);
@@ -588,14 +636,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
-    private void executeOnce() {
-        if (!executed) {
-            // Execute the method here
-            addBallToBalls();
-            // This block will run only once
-            executed = true;
-        }
-    }
 
 
 
