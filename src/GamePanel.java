@@ -163,6 +163,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             checkCollisionForBricks(ball);
             checkCollisionForItemBall(ball);
             checkCoillisionForSpeedItem(ball);
+            checkCollisionForPowerItem(ball);
         }
 
     }
@@ -341,6 +342,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 if (level %4 == 0){
                     new SpeedItem();
                 }
+              //  if (level %5 == 0){
+                    new PowerItem();
+             //   }
 
             }
            // executeOnce();
@@ -357,8 +361,25 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                     Ballitem.ballitems.remove(ballitem);
                 }
                 if (ballitem.collidedWithBall == true) {
-                    new Ball(firstBall.ballPosX,firstBall.ballPosY);
+                   Ball ball1 =  new Ball(firstBall.ballPosX,firstBall.ballPosY);
+                   ball1.xVelocity = firstBall.xVelocity;
+                   ball1.yVelocity = firstBall.yVelocity;
                 }
+        }
+    }
+
+    public void checkCollisionForPowerItem(Ball ball){
+        for (int i = 0 ; i < PowerItem.powerItems.size(); i ++) {
+            PowerItem powerItem = PowerItem.powerItems.get(i);
+            if (ball.intersects(powerItem) == true) {
+                powerItem.collidedWithBall = true;
+               PowerItem.powerItems.remove(powerItem);
+            }
+            if (powerItem.collidedWithBall == true) {
+                for (Ball ball1:Ball.allBalls){
+                    ball1.power2 = true;
+                }
+            }
         }
     }
 
@@ -391,19 +412,30 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
 
+
+
+
     public void checkCollisionForBricks(Ball ball) {
         Iterator<Brick> iterator = Brick.allBricks.iterator();
         while (iterator.hasNext()) {
             Brick brick = iterator.next();
             if ((ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide))) {
                 ball.xVelocity = -ball.xVelocity;
+                if (ball.power2 == true){
+                    brick.value-=2;
+                }
+                else
                 brick.value--;
 
 
             }
             if (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide)) {
                 ball.yVelocity = -ball.yVelocity;
-                brick.value--;
+                if (ball.power2 == true){
+                    brick.value-=2;
+                }
+                else
+                    brick.value--;
 
 
             }
@@ -454,6 +486,10 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
        for (SpeedItem speedItem:SpeedItem.speedItems){
            speedItem.paint(g);
+       }
+
+       for (PowerItem powerItem:PowerItem.powerItems){
+           powerItem.paint(g);
        }
 
 

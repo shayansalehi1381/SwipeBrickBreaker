@@ -15,6 +15,7 @@ public class Ball extends Rectangle  {
      int speed = 5;
      int width = 15;
      int height = 15;
+     boolean power2 = false;
 
 
    static ArrayList<Ball> allBalls = new ArrayList<>();
