@@ -7,7 +7,9 @@ public class Player {
     String name;
     LocalDate localDate;
     LocalTime localTime;
-    public Player(){
+    GamePanel gamePanel;
+    public Player(GamePanel gamePanel){
+        this.gamePanel = gamePanel;
         score = (int)GamePanel.score;
         name = GamePrepPanel.textField.getText();
         localDate = LocalDate.now();

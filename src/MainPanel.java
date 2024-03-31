@@ -44,7 +44,7 @@ public class MainPanel extends JPanel implements ActionListener {
         exitButton.setBounds(GamePanel.GAME_WIDTH / 2 - 100, 310, 200, 50);
 
         // Create label for displaying overall record
-        JLabel overallRecordLabel = new JLabel("Record: ");
+        JLabel overallRecordLabel = new JLabel("Record:   0");
         overallRecordLabel.setForeground(Color.white);
         overallRecordLabel.setBounds(GamePanel.GAME_WIDTH / 2 - 100, 380, 200, 50);
 

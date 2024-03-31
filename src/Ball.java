@@ -35,8 +35,8 @@ public class Ball extends Rectangle  {
         g.setColor(color);
         g.fillOval(ballPosX,ballPosY,width,height);
         g.setColor(Color.black);
-        g.setFont(new Font("Arial",Font.BOLD,8));
-        g.drawString(String.valueOf(this.ID),ballPosX+4,ballPosY+10);
+
+
     }
     public void move(){
         ballPosX+=xVelocity;

@@ -6,8 +6,10 @@ import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 
 public class GameFrame extends JFrame {
+    ArrayList<GamePanel> gamePanels = new ArrayList<>();
      MainPanel mainPanel;
     public Clip clip;
 
@@ -45,6 +47,8 @@ public class GameFrame extends JFrame {
         this.setLocationRelativeTo(null);
 
     }
+
+
 
 
 

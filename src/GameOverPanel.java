@@ -28,24 +28,31 @@ public class GameOverPanel extends JPanel implements ActionListener {
         add(mainPageLabel);
 
 
-        JLabel scoreLabel = new JLabel("SCORE: "+GamePanel.score);
 
-        //GamePanel.scoreBeforeResetGame = 0;
-        scoreLabel.setForeground(Color.white);
-        scoreLabel.setBackground(Color.black);
-        scoreLabel.setBounds(150,120,200,60);
-        scoreLabel.setFont(new Font("Arial",Font.PLAIN,20));
-
-        add(scoreLabel);
 
         playAgain = new JButton("Play Again");
         playAgain.setBackground(Color.red);
         playAgain.setForeground(Color.black);
         playAgain.addActionListener(this);
-        playAgain.setBounds(150,180,150,50);
+        playAgain.setBounds(170,180,150,50);
         add(playAgain);
 
 
+
+       gamePrepButton = new JButton("Game Prep Page");
+        gamePrepButton.setBackground(Color.red);
+        gamePrepButton.setForeground(Color.black);
+        gamePrepButton.addActionListener(this);
+        gamePrepButton.setBounds(170,250,150,50);
+        add(gamePrepButton);
+
+
+        mainPanelButton = new JButton("Main Page");
+        mainPanelButton.setBackground(Color.red);
+        mainPanelButton.setForeground(Color.black);
+        mainPanelButton.addActionListener(this);
+        mainPanelButton.setBounds(170,320,150,50);
+        add(mainPanelButton);
 
 
 
@@ -55,14 +62,28 @@ public class GameOverPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == playAgain){
-            GamePanel newGamePanel = new GamePanel(frame);
-
-            newGamePanel.resetGame();
+            gamePanel.resetGame();
             frame.getContentPane().removeAll();
-            frame.getContentPane().add(new GamePanel(this.frame));
+            frame.getContentPane().add(new GamePanel(frame));
             frame.revalidate();
             frame.repaint();
 
+        }
+
+        else if (e.getSource() ==mainPanelButton ){
+            gamePanel.resetGame();
+            frame.getContentPane().removeAll();
+            frame.getContentPane().add(new MainPanel(frame));
+            frame.revalidate();
+            frame.repaint();
+        }
+
+        else if (e.getSource() == gamePrepButton){
+            gamePanel.resetGame();
+            frame.getContentPane().removeAll();
+            frame.getContentPane().add(new GamePrepPanel(frame,new MainPanel(frame)));
+            frame.revalidate();
+           frame.repaint();
         }
     }
 }

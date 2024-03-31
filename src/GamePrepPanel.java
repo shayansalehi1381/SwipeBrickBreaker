@@ -119,6 +119,7 @@ public class GamePrepPanel extends JPanel implements ActionListener {
         add(startGame);
 
 
+
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -141,11 +142,12 @@ public class GamePrepPanel extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this,"Please Enter the Name!","Error",JOptionPane.ERROR_MESSAGE);
             }
             else {
-                    gamePanel = new GamePanel(frame);
+
                 frame.getContentPane().removeAll();
-                frame.getContentPane().add(gamePanel);
+                frame.getContentPane().add(new GamePanel(frame));
                 frame.revalidate();
                 frame.repaint();
+                textField.setText(null);
             }
         }
 

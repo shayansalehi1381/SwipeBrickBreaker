@@ -12,7 +12,7 @@ import java.util.Timer;
 
 public class GamePanel extends JPanel implements MouseMotionListener, MouseListener, ActionListener, Runnable {
 
-    Player player;
+
     static Color aimColor = new Color(0x04E884);
 
     static final int GAME_WIDTH = 600;
@@ -45,7 +45,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     private boolean levelIncremented = false;
     static boolean gameOver = false;
     private boolean addNewBall = false;
-    int numberOfBallItemsToBuildBalls = 0;
+  //  int numberOfBallItemsToBuildBalls = 0;
     ArrayList<Integer> ballitemArrayListToBuildBalls = new ArrayList<>();
     static boolean medium = false;
     static boolean hard = false;
@@ -62,20 +62,29 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     // Define a constant for the delay between shots (in milliseconds)
     private static final int BALL_MOVE_DELAY_MS = 60;
     boolean vertigoCollision = false;
+     static int Resualt = 0;
+     int panelID = 0;
+    static int nextID = 1;
+
 
 
     GamePanel(GameFrame frame) {
-
+        frame.gamePanels.add(this);
+        panelID=nextID++;
         setLayout(null);
 
 
-        player = new Player();
+
         this.frame = frame;
         setPreferredSize(Screen_Size);
         northBorder = new Border(0, 0, GAME_WIDTH, 10);
-        southBorder = new Border(0, GAME_HEIGHT - 46, GAME_WIDTH, 10);
-        rightBorder = new Border(GAME_WIDTH - 23, 0, 10, GAME_HEIGHT);
+        southBorder = new Border(0, GAME_HEIGHT - 40, GAME_WIDTH, 50);
+        rightBorder = new Border(GAME_WIDTH - 10, 0, 10, GAME_HEIGHT);
         leftBorder = new Border(0, 0, 10, GAME_HEIGHT);
+
+
+
+
         firstBall = new Ball(GAME_WIDTH / 2 - 20, GAME_HEIGHT);
 
 
@@ -544,6 +553,12 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         for (int i = 0; i < Ball.allBalls.size(); i++) {
             Ball ball = Ball.allBalls.get(i);
             ball.paint(g);
+
+        }
+        for (int i =0; i<Ball.allBalls.size(); i++){
+            Ball ball = Ball.allBalls.get(i);
+            g.setFont(new Font("Arial",Font.BOLD,8));
+            g.drawString(String.valueOf(i+1),ball.ballPosX+4,ball.ballPosY+10);
         }
 
 
@@ -632,54 +647,66 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
     public void GameOver() {
-        for (Brick brick : Brick.allBricks) {
-            if (brick.brickYpos + brick.height >= southBorder.y) {
-                scoreBeforeResetGame = (int) score;
-                gameOver = true;
+        if (gameOver == false){
+            for (Brick brick : Brick.allBricks) {
+                if (brick.brickYpos + brick.height >= southBorder.y) {
 
-                if (gameOver == true) {
-                    System.out.println("game panel:" + score);
-                    frame.getContentPane().removeAll();
-                    frame.getContentPane().add(gameOverPanel);
-                    frame.revalidate();
-                    frame.repaint();
+                    gameOver = true;
+                    break;
                 }
 
-
             }
+        }
+
+         if (gameOver == true) {
+           JOptionPane.showMessageDialog(this,"Your Score: "+score,"SCORE",JOptionPane.INFORMATION_MESSAGE);
+           frame.getContentPane().removeAll();
+            frame.getContentPane().add(gameOverPanel);
+            frame.revalidate();
+            frame.repaint();
+
+
         }
     }
 
     public void resetGame() {
-        // Clear all lists and reset necessary variables
-        Ball.allBalls.clear();
+        // Clear all balls
+
+
+        // Clear all bricks
         Brick.allBricks.clear();
+
+        // Clear all items
         Ballitem.ballitems.clear();
-        level = -1;
+        SpeedItem.speedItems.clear();
+        PowerItem.powerItems.clear();
+        VertigoItem.vertigoItems.clear();
+        Item.items.clear();
+        Ball.allBalls.clear();
 
-        score = 0;
-
+        // Reset game-related variables
+        score = 2;
         scoreFromBricks = 0;
-        numberOfBallItemsToBuildBalls = 0;
-        isDragging = false;
+        TotalTime = 0;
+        level = -1;
+        gameOver = false;
         ballGrounded = true;
         playIsON = false;
-        //ballFirstTouch = false;
-        brickAdded = false;
+        firstBallCollision = false;
         levelIncremented = false;
-        addNewBall = false;
-        gameOver = false;
+        brickAdded = false;
+        vertigoCollision = false;
 
-        stopGameThread();
+        // Clear ball shot times
+        ballShotTimes.clear();
 
-        // Reset time related variables
-        startTime = System.currentTimeMillis();
-        lastTime = System.nanoTime();
-        endTime = System.currentTimeMillis();
-        elapsedTime = 0;
+        // Reset player position or any other necessary variables
 
+        // Start a new game thread
         startGameThread();
     }
+
+
 
 
     public String formatTime(long milliseconds) {
@@ -714,11 +741,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
     }
 
-    public void addBallToBalls() {
-        Ball ball1 = Ball.getBallById(firstBall.ID);
-        Ball ball = new Ball(ball1.ballPosX, ball1.ballPosY);
 
-    }
 
 
 }
