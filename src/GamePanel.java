@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     static boolean hard = false;
     GameFrame frame;
     GameOverPanel gameOverPanel;
-    double FPS ;
+    double FPS;
     int played = 0;
     private boolean paused = false;
     static int scoreBeforeResetGame;
@@ -62,10 +62,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     // Define a constant for the delay between shots (in milliseconds)
     private static final int BALL_MOVE_DELAY_MS = 60;
     boolean vertigoCollision = false;
-
-
-
-
 
 
     GamePanel(GameFrame frame) {
@@ -80,7 +76,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         southBorder = new Border(0, GAME_HEIGHT - 46, GAME_WIDTH, 10);
         rightBorder = new Border(GAME_WIDTH - 23, 0, 10, GAME_HEIGHT);
         leftBorder = new Border(0, 0, 10, GAME_HEIGHT);
-        firstBall = new Ball(GAME_WIDTH / 2 - 20, GAME_HEIGHT );
+        firstBall = new Ball(GAME_WIDTH / 2 - 20, GAME_HEIGHT);
 
 
         addMouseListener(this);
@@ -177,8 +173,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         startTime = System.currentTimeMillis();
         lastTime = System.nanoTime();
         endTime = System.currentTimeMillis();
-         FPS = 60.0;
-       played++;
+        FPS = 60.0;
+        played++;
         double ns = 1000000000 / FPS;
         double delta = 0;
         timeLeft = endTime - System.currentTimeMillis();
@@ -188,7 +184,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             delta += (now - lastTime) / ns;
             lastTime = now;
             while (delta >= 1) {
-                if (!paused){
+                if (!paused) {
                     move();
                     checkCollision();
                     brickSlowMove();
@@ -199,7 +195,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                     elapsedTime = System.currentTimeMillis() - startTime;
                 }
                 try {
-                    Thread.sleep((long) (1000/FPS));
+                    Thread.sleep((long) (1000 / FPS));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -224,7 +220,7 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                     mouseY >= ball.ballPosY && mouseY <= ball.ballPosY + ball.height) {
                 playIsON = false;
                 isDragging = true;
-            //    ballFirstTouch = true;
+                //    ballFirstTouch = true;
                 initialMouseX = mouseX;
                 initialMouseY = mouseY;
             }
@@ -235,30 +231,30 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     public void mouseReleased(MouseEvent e) {
 
         if (playIsON == false) {
-        //    if (ballFirstTouch == true) {
-                playIsON = true;
-                if (isDragging) {
-                    mouseX = e.getX();
-                    mouseY = e.getY();
+            //    if (ballFirstTouch == true) {
+            playIsON = true;
+            if (isDragging) {
+                mouseX = e.getX();
+                mouseY = e.getY();
 
-                    // Calculate velocity based on the difference between initial press and release positions
-                    int releaseVelocityX = ((mouseX - initialMouseX) / 70); // Adjust the division factor as needed
-                    int releaseVelocityY = ((mouseY - initialMouseY) / 70);
-                    for (int i = 0; i < Ball.allBalls.size(); i++) {
-                        Ball ball = Ball.allBalls.get(i);
-                        // Set the ball's velocity to the calculated velocity
-                        ball.xVelocity = releaseVelocityX;
-                        ball.yVelocity = releaseVelocityY;
+                // Calculate velocity based on the difference between initial press and release positions
+                int releaseVelocityX = ((mouseX - initialMouseX) / 70); // Adjust the division factor as needed
+                int releaseVelocityY = ((mouseY - initialMouseY) / 70);
+                for (int i = 0; i < Ball.allBalls.size(); i++) {
+                    Ball ball = Ball.allBalls.get(i);
+                    // Set the ball's velocity to the calculated velocity
+                    ball.xVelocity = releaseVelocityX;
+                    ball.yVelocity = releaseVelocityY;
 
-                        ball.move();
-                        ballGrounded = false;
-                        isDragging = false;
+                    ball.move();
+                    ballGrounded = false;
+                    isDragging = false;
 
-                        // Repaint the panel to remove the aiming line
-                        repaint();
-                    }
+                    // Repaint the panel to remove the aiming line
+                    repaint();
                 }
-         //   }
+            }
+            //   }
         }
         levelIncremented = false;
         brickAdded = false;
@@ -267,7 +263,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         long currentTime = System.currentTimeMillis();
         ballShotTimes.put(currentBallID, currentTime);
     }
-
 
 
     @Override
@@ -312,12 +307,12 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             ball.ballPosY = southBorder.y - ball.height;
             ball.yVelocity = 0;
             ball.xVelocity = 0;
-            if (ball.ID != 1){
+            if (ball.ID != 1) {
                 ball.ballPosX = firstBall.ballPosX;
                 ball.ballPosY = firstBall.ballPosY;
             }
 
-         //   GAME_WIDTH / 2 - 20, GAME_HEIGHT
+            //   GAME_WIDTH / 2 - 20, GAME_HEIGHT
 
 
             ballGrounded = true;
@@ -329,65 +324,99 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
                 bricksSuddenMove();
 
-                if (level > 1){
+                if (level > 1) {
                     firstBallCollision = true;
-                    new Ball(firstBall.ballPosX,firstBall.ballPosY);
+                    new Ball(firstBall.ballPosX, firstBall.ballPosY);
 
                 }
                 levelIncremented = true;
             }
             if (!brickAdded) {
                 // Add a brick only if one hasn't been added already
-
                 map.makeRandomBricks();
                 brickAdded = true;
-                new Ballitem();
-                if (level %4 == 0){
-                    new SpeedItem();
-                }
-                if (level %5 == 0){
-                    new PowerItem();
-                }
-                new VertigoItem();
+                if (medium){
+                    if ( level %2 == 0){
+                        new Ballitem();
+                    }
+                    if (level % 5 == 0) {
+                        new SpeedItem();
+                    }
+                    if (level % 7 == 0) {
+                        new PowerItem();
+                    }
 
+                    if (level % 4 == 0) {
+                        new VertigoItem();
+                    }
+                }
+                else if (hard){
+                    if ( level %3 == 0){
+                        new Ballitem();
+                    }
+                    if (level % 6 == 0) {
+                        new SpeedItem();
+                    }
+                    if (level % 8 == 0) {
+                        new PowerItem();
+                    }
+
+                    if (level % 3 == 0) {
+                        new VertigoItem();
+                    }
+                }
+                else {
+
+                        new Ballitem();
+
+                    if (level % 4 == 0) {
+                        new SpeedItem();
+                    }
+                    if (level % 5 == 0) {
+                        new PowerItem();
+                    }
+
+                    if (level % 6 == 0) {
+                        new VertigoItem();
+                    }
+                }
             }
-           // executeOnce();
         }
     }
 
 
     public void checkCollisionForItemBall(Ball ball) {
-        for (int i = 0 ; i < Ballitem.ballitems.size(); i ++) {
+        for (int i = 0; i < Ballitem.ballitems.size(); i++) {
             Ballitem ballitem = Ballitem.ballitems.get(i);
-                if (ball.intersects(ballitem) == true) {
+            if (ball.intersects(ballitem) == true) {
 
-                    ballitem.collidedWithBall = true;
-                    Ballitem.ballitems.remove(ballitem);
-                }
-                if (ballitem.collidedWithBall == true) {
-                   Ball ball1 =  new Ball(firstBall.ballPosX,firstBall.ballPosY);
-                   ball1.xVelocity = firstBall.xVelocity;
-                   ball1.yVelocity = firstBall.yVelocity;
-                }
+                ballitem.collidedWithBall = true;
+                Ballitem.ballitems.remove(ballitem);
+            }
+            if (ballitem.collidedWithBall == true) {
+                Ball ball1 = new Ball(firstBall.ballPosX, firstBall.ballPosY);
+                ball1.xVelocity = firstBall.xVelocity;
+                ball1.yVelocity = firstBall.yVelocity;
+            }
         }
     }
 
-    public void checkCollisionForPowerItem(Ball ball){
-        for (int i = 0 ; i < PowerItem.powerItems.size(); i ++) {
+    public void checkCollisionForPowerItem(Ball ball) {
+        for (int i = 0; i < PowerItem.powerItems.size(); i++) {
             PowerItem powerItem = PowerItem.powerItems.get(i);
             if (ball.intersects(powerItem) == true) {
                 powerItem.collidedWithBall = true;
-               PowerItem.powerItems.remove(powerItem);
+                PowerItem.powerItems.remove(powerItem);
             }
             if (powerItem.collidedWithBall == true) {
-                for (Ball ball1:Ball.allBalls){
+                for (Ball ball1 : Ball.allBalls) {
                     ball1.power2 = true;
                 }
             }
         }
     }
 
-    public void checkCoillisionForSpeedItem(Ball ball){
+    public void checkCoillisionForSpeedItem(Ball ball) {
         Iterator<SpeedItem> iterator = SpeedItem.speedItems.iterator();
         while (iterator.hasNext()) {
             SpeedItem speedItem = iterator.next();
@@ -396,9 +425,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 iterator.remove(); // Remove the SpeedItem from the list
 
                 // Apply speed boost to the ball
-                for (Ball ball1:Ball.allBalls){
-                    ball1.xVelocity*=2;
-                    ball1.yVelocity*=2;
+                for (Ball ball1 : Ball.allBalls) {
+                    ball1.xVelocity *= 2;
+                    ball1.yVelocity *= 2;
                 }
 
                 // Schedule to revert the velocity after 15 seconds
@@ -406,8 +435,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        ball.xVelocity/=2;
-                        ball.yVelocity/=2;// Reset the velocity to its original value
+                        ball.xVelocity /= 2;
+                        ball.yVelocity /= 2;// Reset the velocity to its original value
                     }
                 }, 15000); // 15 seconds in milliseconds
             }
@@ -415,8 +444,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
-    public void checkCollisionForVertigoItems(Ball ball){
-        for (int i = 0 ; i < VertigoItem.vertigoItems.size(); i ++) {
+    public void checkCollisionForVertigoItems(Ball ball) {
+        for (int i = 0; i < VertigoItem.vertigoItems.size(); i++) {
             VertigoItem vertigoItem = VertigoItem.vertigoItems.get(i);
             if (ball.intersects(vertigoItem) == true) {
                 vertigoItem.collidedWithBall = true;
@@ -432,25 +461,8 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
                     }
                 }, 5000); // 5 seconds in milliseconds
             }
-            }
         }
-
-
-    private int calculateHighestLevel() {
-        int highestLevel = 1; // Initialize to the minimum level, assuming level starts from 1
-
-        // Iterate through all completed levels and update highestLevel if needed
-        // You'll need to adapt this logic based on how your game tracks level progress
-        for (int i = 0; i < level; i++) {
-            int completedLevel = level-1;
-            if (completedLevel > highestLevel) {
-                highestLevel = completedLevel;
-            }
-        }
-
-        return highestLevel;
     }
-
 
 
     public void checkCollisionForBricks(Ball ball) {
@@ -459,20 +471,18 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             Brick brick = iterator.next();
             if ((ball.intersects(brick.rightSide) || ball.intersects(brick.leftSide))) {
                 ball.xVelocity = -ball.xVelocity;
-                if (ball.power2 == true){
-                    brick.value-=2;
-                }
-                else
-                brick.value--;
+                if (ball.power2 == true) {
+                    brick.value -= 2;
+                } else
+                    brick.value--;
 
 
             }
             if (ball.intersects(brick.topSide) || ball.intersects(brick.bottomSide)) {
                 ball.yVelocity = -ball.yVelocity;
-                if (ball.power2 == true){
-                    brick.value-=2;
-                }
-                else
+                if (ball.power2 == true) {
+                    brick.value -= 2;
+                } else
                     brick.value--;
 
 
@@ -487,10 +497,10 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
-   public void paint(Graphics g) {
+    public void paint(Graphics g) {
 
         g.setColor(Color.white);
-        g.fillRect(0,0,GAME_WIDTH,GAME_HEIGHT);
+        g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
         //time Passed
         String timeString = "Time Passed: " + formatTime(elapsedTime);
@@ -510,24 +520,23 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
         //****************************************************************************************
-       items:
+        items:
 
 
-       //RegularItems:
+        //RegularItems:
 
         for (Ballitem ballitem : Ballitem.ballitems) {
             ballitem.paint(g);
         }
-       for (SpeedItem speedItem:SpeedItem.speedItems){
-           speedItem.paint(g);
-       }
-       for (PowerItem powerItem:PowerItem.powerItems){
-           powerItem.paint(g);
-       }
-       for (VertigoItem vertigoItem:VertigoItem.vertigoItems){
-           vertigoItem.paint(g);
-       }
-
+        for (SpeedItem speedItem : SpeedItem.speedItems) {
+            speedItem.paint(g);
+        }
+        for (PowerItem powerItem : PowerItem.powerItems) {
+            powerItem.paint(g);
+        }
+        for (VertigoItem vertigoItem : VertigoItem.vertigoItems) {
+            vertigoItem.paint(g);
+        }
 
 
         //******************************************************************************************
@@ -546,16 +555,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
             Graphics2D g2d = (Graphics2D) g;
             Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
             g2d.setStroke(dashed);
-           if (vertigoCollision){
-               int xVertigo = -mouseX;
-               int yVertigo = -mouseY;
-               g2d.drawLine(initialMouseX, initialMouseY, xVertigo, yVertigo);
-              // vertigoCollision = false;
-           }
-           else
+            if (vertigoCollision) {
+                int xVertigo = -mouseX;
+                int yVertigo = -mouseY;
+                g2d.drawLine(initialMouseX, initialMouseY, xVertigo, yVertigo);
+                // vertigoCollision = false;
+            } else
                 g2d.drawLine(initialMouseX, initialMouseY, mouseX, mouseY);
-
-
 
 
         }
@@ -564,15 +570,15 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         //score
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " +(int) score, 30, 50);
+        g.drawString("Score: " + (int) score, 30, 50);
 
         //pause & resume
-       g.setColor(Color.black);
-       g.setFont(new Font("Arial", Font.BOLD, 10));
-       g.drawString("Press 'P' to pause the game", 150, 20);
-       g.setColor(Color.black);
-       g.setFont(new Font("Arial", Font.BOLD, 10));
-       g.drawString("Press 'R' to resume the game", 150, 35);
+        g.setColor(Color.black);
+        g.setFont(new Font("Arial", Font.BOLD, 10));
+        g.drawString("Press 'P' to pause the game", 150, 20);
+        g.setColor(Color.black);
+        g.setFont(new Font("Arial", Font.BOLD, 10));
+        g.drawString("Press 'R' to resume the game", 150, 35);
 
         // draw Game Level
         g.setColor(Color.BLACK);
@@ -589,13 +595,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
     public void bricksSuddenMove() {
-        boolean allBallsGrounded =false;
-        for (Ball ball:Ball.allBalls){
-            if (ball.ballPosY + ball.height >= southBorder.y){
+        boolean allBallsGrounded = false;
+        for (Ball ball : Ball.allBalls) {
+            if (ball.ballPosY + ball.height >= southBorder.y) {
                 allBallsGrounded = true;
             }
         }
-        if (allBallsGrounded){
+        if (allBallsGrounded) {
             for (Brick brick : Brick.allBricks) {
                 brick.brickYpos += brick.height;
                 brick.rightSide.yPos += brick.height;
@@ -608,9 +614,9 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
     public void brickSlowMove() {
-        boolean allBallsGrounded =false;
-        for (Ball ball:Ball.allBalls){
-            if (ball.ballPosY + ball.height >= southBorder.y){
+        boolean allBallsGrounded = false;
+        for (Ball ball : Ball.allBalls) {
+            if (ball.ballPosY + ball.height >= southBorder.y) {
                 allBallsGrounded = true;
             }
         }
@@ -628,11 +634,11 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     public void GameOver() {
         for (Brick brick : Brick.allBricks) {
             if (brick.brickYpos + brick.height >= southBorder.y) {
-                scoreBeforeResetGame = (int)score;
+                scoreBeforeResetGame = (int) score;
                 gameOver = true;
 
-               if (gameOver == true) {
-                   System.out.println("game panel:"+score);
+                if (gameOver == true) {
+                    System.out.println("game panel:" + score);
                     frame.getContentPane().removeAll();
                     frame.getContentPane().add(gameOverPanel);
                     frame.revalidate();
@@ -693,9 +699,6 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     }
 
 
-
-
-
     public void stopGameThread() {
         // Check if the game thread is running and interrupt it
         if (gameThread != null && gameThread.isAlive()) {
@@ -704,23 +707,18 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
         }
     }
 
-    public void startGameThread(){
+    public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
 
 
-
-
     }
 
-    public void addBallToBalls(){
+    public void addBallToBalls() {
         Ball ball1 = Ball.getBallById(firstBall.ID);
-        Ball ball = new Ball(ball1.ballPosX,ball1.ballPosY);
+        Ball ball = new Ball(ball1.ballPosX, ball1.ballPosY);
 
     }
-
-
-
 
 
 }
