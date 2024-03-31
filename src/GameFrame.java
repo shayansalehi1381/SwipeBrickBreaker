@@ -12,6 +12,7 @@ public class GameFrame extends JFrame {
     ArrayList<GamePanel> gamePanels = new ArrayList<>();
      MainPanel mainPanel;
     public Clip clip;
+    static boolean themeSongEnabled = true;
 
 
 
@@ -27,8 +28,8 @@ public class GameFrame extends JFrame {
             File themeSongFile = new File("Destroyer-Of-Worlds.wav");
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(themeSongFile);
             clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // Loops the audio continuously
+                clip.open(audioInputStream);
+                clip.loop(Clip.LOOP_CONTINUOUSLY); // Loops the audio continuously
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -60,11 +60,13 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
     private Map<Integer, Long> ballShotTimes = new HashMap<>();
 
     // Define a constant for the delay between shots (in milliseconds)
-    private static final int BALL_MOVE_DELAY_MS = 60;
+    private static final int BALL_MOVE_DELAY_MS = 80;
     boolean vertigoCollision = false;
      static int Resualt = 0;
      int panelID = 0;
     static int nextID = 1;
+    static boolean Aiming = true;
+    static boolean savingHistory = false;
 
 
 
@@ -563,23 +565,26 @@ public class GamePanel extends JPanel implements MouseMotionListener, MouseListe
 
 
         // Draw aiming line if the mouse is being dragged
-        if (isDragging) {
-            g.setColor(aimColor); // Change color as needed
+        if (Aiming){
+            if (isDragging) {
+                g.setColor(aimColor); // Change color as needed
 
-            // Draw dashed line
-            Graphics2D g2d = (Graphics2D) g;
-            Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
-            g2d.setStroke(dashed);
-            if (vertigoCollision) {
-                int xVertigo = -mouseX;
-                int yVertigo = -mouseY;
-                g2d.drawLine(initialMouseX, initialMouseY, xVertigo, yVertigo);
-                // vertigoCollision = false;
-            } else
-                g2d.drawLine(initialMouseX, initialMouseY, mouseX, mouseY);
+                // Draw dashed line
+                Graphics2D g2d = (Graphics2D) g;
+                Stroke dashed = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
+                g2d.setStroke(dashed);
+                if (vertigoCollision) {
+                    int xVertigo = -mouseX;
+                    int yVertigo = -mouseY;
+                    g2d.drawLine(initialMouseX, initialMouseY, xVertigo, yVertigo);
+                    // vertigoCollision = false;
+                } else
+                    g2d.drawLine(initialMouseX, initialMouseY, mouseX, mouseY);
 
 
+            }
         }
+
 
 
         //score
